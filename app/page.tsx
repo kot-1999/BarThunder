@@ -1,16 +1,21 @@
-'use client';
-
+'use server'
 import React from 'react';
-import {Breadcrumb} from 'antd';
+import {getOrCreateBar} from "@/app/getOrCreateBar";
 
-const App = () => {
+const App = async () => {
+
+    // let rootData = await getCookie('root')
+    // console.log('rootData', rootData)
+    // if (!rootData) {
+    //     rootData = await getOrCreateBar()
+    //     setCookie('root', rootData)
+    // }
+
+    await getOrCreateBar()
+
+    // Here
     return <main>
-        <Breadcrumb>
-            <Breadcrumb.Separator>Sep</Breadcrumb.Separator>
-            <Breadcrumb.Item>sample</Breadcrumb.Item>
-            <Breadcrumb.Item>sample</Breadcrumb.Item>
-            <Breadcrumb.Item>sample</Breadcrumb.Item>
-        </Breadcrumb>
+        <h1>Home</h1>
     </main>;
 };
 
