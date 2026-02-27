@@ -11,7 +11,7 @@ export default function Home() {
   return (
       <main>
         <>
-          <h1>Hedy Lamarr's Todos</h1>
+          <h1>Hedy Lamar's Todos</h1>
           <img
               src="https://i.imgur.com/yXOvdOSs.jpg"
               alt="Hedy Lamarr"
