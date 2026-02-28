@@ -1,4 +1,4 @@
-import {request} from "@/app/server";
+import {request} from "@/app/src/server";
 
 class ApiRequests {
     public barID: string | undefined

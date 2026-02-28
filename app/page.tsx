@@ -1,6 +1,6 @@
 'use server'
 import React from 'react';
-import {getOrCreateBar} from "@/app/getOrCreateBar";
+import {getOrCreateBar} from "@/app/src/getOrCreateBar";
 
 const App = async () => {
 

@@ -1,7 +1,12 @@
 'use server'
 
-import { api } from "@/app/ApiRequests"
+import { api } from "@/app/src/ApiRequests"
 
+/**
+ * This function is needed for initial setup of backend.
+ * Here the root user and bar with cocktails data are being created.
+ *
+ * */
 export async function getOrCreateBar() {
 
     // LOGIN
