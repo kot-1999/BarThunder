@@ -1,7 +1,11 @@
 'use server'
 import {cookies} from "next/headers";
 
-const baseUrl = process.env.NEXT_PUBLIC_API_URL;
+// ===============================
+// API REQUEST
+// ===============================
+
+const baseUrl = process.env.API_URL;
 
 export async function request(
     url: string,
@@ -9,6 +13,17 @@ export async function request(
     isRoot = false
 ) {
     try {
+        console.info('API Request', `${baseUrl}${url}`,
+            {
+                headers: {
+                    'Accept': 'application/json',
+                    'Content-Type': 'application/json',
+                    ...(options.headers || {}),
+                },
+                cache: 'no-store',
+                body: options.body ?? undefined,
+                method: options.method ?? undefined
+            })
         const response = await fetch(
 
             `${baseUrl}${url}`,
@@ -23,17 +38,7 @@ export async function request(
                 method: options.method ?? undefined
             }
         );
-        console.log('----------', `${baseUrl}${url}`,
-            {
-                headers: {
-                    'Accept': 'application/json',
-                    'Content-Type': 'application/json',
-                    ...(options.headers || {}),
-                },
-                cache: 'no-store',
-                body: options.body ?? undefined,
-                method: options.method ?? undefined
-            })
+
         if (isRoot) {
             return response
         }
@@ -41,17 +46,19 @@ export async function request(
         const data = await response.json()
 
         if (!response.ok) {
-            throw new Error(
-                data?.message || 'Something went wrong'
-            );
+            throw new Error(response.statusText);
         }
 
         return data;
     } catch (error: any) {
-        console.error('API ERROR:', error.message);
+        console.error('API Error:', error);
         throw error;
     }
 }
+
+// ===============================
+// COOKIES
+// ===============================
 
 type Key = 'token'
 
@@ -80,3 +87,7 @@ export async function deleteCookie(key: Key) {
 
     cookieStore.delete(key);
 }
+
+// ===============================
+// *********
+// ===============================

@@ -1,22 +1,13 @@
 'use server'
-import React from 'react';
-import {getOrCreateBar} from "@/app/src/getOrCreateBar";
 
-const App = async () => {
+import { getOrCreateBar } from "@/app/src/getOrCreateBar";
+import { api } from "@/app/src/ApiRequests";
+import CocktailList from "@/app/drinks/page";
 
-    // let rootData = await getCookie('root')
-    // console.log('rootData', rootData)
-    // if (!rootData) {
-    //     rootData = await getOrCreateBar()
-    //     setCookie('root', rootData)
-    // }
+export default async function App() {
+    await getOrCreateBar();
 
-    await getOrCreateBar()
+    const cocktails = await api.listCocktails();
 
-    // Here
-    return <main>
-        <h1>Home</h1>
-    </main>;
-};
-
-export default App;
+    return <CocktailList cocktails={cocktails.data} />;
+}

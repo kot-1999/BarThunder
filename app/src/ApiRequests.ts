@@ -6,6 +6,57 @@ class ApiRequests {
     public rootID: string | undefined
 
     // ===============================
+    // COCKTAILS
+    // ===============================
+
+    publicListCocktails(slugOrgID: string): Promise<{ data: {
+            name: string,
+            instructions: string,
+            garnish: string,
+            description: string,
+            images: {
+                placeholder_hash: string,
+                url: string,
+                copyright: string,
+            },
+            tags: string[],
+            glass: string,
+            method: string,
+            method_dilution_percentage: number,
+            volume_ml: string,
+            abv: number,
+            ingredients: {
+                name: string,
+                amount: number,
+                units: string,
+                optional: boolean
+            }[]
+        }}> {
+        return request(
+            `/api/public/${slugOrgID}/cocktails`,
+            {
+                method: 'GET'
+            }
+        )
+    }
+
+    // This one has filters but requires admin's token
+    listCocktails(
+        page = 1
+    ) {
+        return request(
+            `/api/cocktails?page=${page}&include=images`,
+            {
+                method: 'GET',
+                headers: {
+                    Authorization: `Bearer ${this.rootToken}`,
+                    'Bar-Assistant-Bar-Id': this.barID as string,
+                },
+            }
+        );
+    }
+
+    // ===============================
     // AUTH
     // ===============================
 
@@ -33,27 +84,6 @@ class ApiRequests {
             body: JSON.stringify(data),
         },
         isRoot);
-    }
-
-    // ===============================
-    // COCKTAILS
-    // ===============================
-
-    listCocktails(
-        token: string,
-        barId: number,
-        page = 1
-    ) {
-        return request(
-            `/api/cocktails?page=${page}&include=images`,
-            {
-                method: 'GET',
-                headers: {
-                    Authorization: `Bearer ${token}`,
-                    'Bar-Assistant-Bar-Id': String(barId),
-                },
-            }
-        );
     }
 
     // ===============================

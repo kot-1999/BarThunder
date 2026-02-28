@@ -2,41 +2,53 @@
 
 import { api } from "@/app/src/ApiRequests"
 
+const rootEmail = process.env.ROOT_EMAIL as string
+const rootPass = process.env.ROOT_PASSWORD as string
+const rootBarSlug = process.env.NEXT_PUBLIC_ROOT_BAR_SLUG as string
+const rootName = process.env.ROOT_NAME as string
+
+
 /**
  * This function is needed for initial setup of backend.
  * Here the root user and bar with cocktails data are being created.
- *
  * */
 export async function getOrCreateBar() {
 
+    if (!!api.barID || !!api.rootID || !!api.rootToken) {
+        console.info('Bar exists')
+        return
+    }
+
     // LOGIN
     let loginRes = await api.login({
-        email: 'bar-13@gmail.com',
-        password: 'test123'
+        email: rootEmail,
+        password: rootPass
     }, true)
 
     let loginData
 
     if (!loginRes.ok) {
-        // REGISTER
+        // Register a user
         await api.register({
-            email: 'bar-13@gmail.com',
-            name: 'bar-thunder-02',
-            password: 'test123'
+            email: rootEmail,
+            name: rootName,
+            password: rootPass
         }, true)
 
+        // Login again in a new account
         loginRes = await api.login({
-            email: 'bar-13@gmail.com',
-            password: 'test123'
+            email: rootEmail,
+            password: rootPass
         }, true)
 
         loginData = await loginRes.json()
 
+        // Create new bar
         const barRes = await api.createBar(loginData.data.token, {
-            name: "bar-13",
+            name: rootBarSlug,
             subtitle: "A short subtitle of a bar",
             description: "Bar description",
-            slug: "bar-13",
+            slug: rootBarSlug,
             default_units: "ml",
             default_currency: "GBP",
             enable_invites: true,
@@ -47,33 +59,29 @@ export async function getOrCreateBar() {
 
         const barData = await barRes.json()
 
+        // Synchronize bar data
         await api.syncBar(loginData.data.token, barData.data.id)
+
+        console.info('Bar was created')
     } else {
         loginData = await loginRes.json()
     }
 
     const barsRes = await api.getBars(loginData.data.token)
+
     const barsData: {
         data: { id: string, slug: string, created_user: { id: string } }[]
     } = await barsRes.json()
 
-    const bar = barsData.data.find((bar) => bar.slug === 'bar-13')
+    const bar = barsData.data.find((bar) => bar.slug === rootBarSlug)
 
     if (!bar) {
         throw new Error('getOrCreateBar - Unable to get bar')
     }
 
-    // await setCookie('root', {
-    //     token: loginData.data.token,
-    //     bardID: bar.id,
-    // })
-
     api.barID = bar.id
     api.rootToken = loginData.data.token
     api.rootID = bar.created_user.id
 
-    return {
-        token: loginData.data.token,
-        bardID: bar.id,
-    }
+    console.info('Bar was initialized successfully')
 }
