@@ -18,7 +18,7 @@ class ApiRequests {
                 placeholder_hash: string,
                 url: string,
                 copyright: string,
-            },
+            }[],
             tags: string[],
             glass: string,
             method: string,
@@ -42,10 +42,25 @@ class ApiRequests {
 
     // This one has filters but requires admin's token
     listCocktails(
-        page = 1
+        options: {
+            page: number | string
+            name?: string,
+            ingredientName?: string
+        } = {
+            page: 1
+        }
     ) {
+        let reqUrl = `/api/cocktails?page=${options.page.toString()}&include=images,glass,method,tags`
+        if (options.name) {
+            reqUrl += `&filter[name]=${options.name}`
+        }
+
+        if (options.ingredientName) {
+            reqUrl += `&filter[ingredient_name]=${options.ingredientName}`
+        }
+
         return request(
-            `/api/cocktails?page=${page}&include=images`,
+            reqUrl,
             {
                 method: 'GET',
                 headers: {
