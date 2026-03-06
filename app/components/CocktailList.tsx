@@ -11,15 +11,14 @@ export default function CocktailList({ cocktails }: any) {
 
             <Row gutter={[16, 16]}>
                 {cocktails.map((drink: any) => (
-                    <Col xs={24} sm={12} lg={8} key={drink.name}>
+                    <Col xs={24} sm={12} lg={8} key={drink.id}>
                         <Card
-                            hoverable
                             cover={
-                                drink.images?.url && (
+                                drink.images?.length && (
                                     <img
-                                        src={drink.images.url}
+                                        src={drink.images[0].url}
                                         alt={drink.name}
-                                        style={{ height: 220, objectFit: "cover" }}
+                                        style={{ height: 350, objectFit: "cover" }}
                                     />
                                 )
                             }
@@ -28,14 +27,14 @@ export default function CocktailList({ cocktails }: any) {
 
                             <Paragraph>{drink.description}</Paragraph>
 
-                            {drink.tags?.map((tag: string) => (
-                                <Tag key={tag}>{tag}</Tag>
+                            {drink.tags?.map((tag: { name: string }) => (
+                                <Tag key={tag.name}>{tag.name}</Tag>
                             ))}
 
                             <Divider />
 
-                            <Text strong>Glass:</Text> {drink.glass}<br />
-                            <Text strong>Method:</Text> {drink.method}<br />
+                            <Text strong>Glass:</Text> {drink.glass?.name}<br />
+                            <Text strong>Method:</Text> {drink.method?.name}<br />
                             <Text strong>ABV:</Text> {drink.abv}%<br />
 
                             <Divider />
@@ -47,7 +46,7 @@ export default function CocktailList({ cocktails }: any) {
                                 dataSource={drink.ingredients}
                                 renderItem={(ing: any) => (
                                     <List.Item>
-                                        {ing.amount} {ing.units} {ing.name}
+                                        {ing.amount} {ing.units} {ing.ingredient.name}
                                         {ing.optional && (
                                             <Tag color="orange" style={{ marginLeft: 8 }}>
                                                 optional
