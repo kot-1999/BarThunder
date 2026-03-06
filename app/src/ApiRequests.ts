@@ -1,4 +1,5 @@
 import {request} from "@/app/src/server";
+import {Cocktail, Meta} from "@/app/src/types";
 
 class ApiRequests {
     public barID: string | undefined
@@ -40,7 +41,7 @@ class ApiRequests {
         )
     }
 
-    // This one has filters but requires admin's token
+    // This one has filters but requires admin's token or any other token
     listCocktails(
         options: {
             page: number | string
@@ -49,7 +50,7 @@ class ApiRequests {
         } = {
             page: 1
         }
-    ) {
+    ): Promise<{ data: Cocktail[], meta: Meta }> {
         let reqUrl = `/api/cocktails?page=${options.page.toString()}&include=images,glass,method,tags`
         if (options.name) {
             reqUrl += `&filter[name]=${options.name}`
@@ -66,6 +67,18 @@ class ApiRequests {
                 headers: {
                     Authorization: `Bearer ${this.rootToken}`,
                     'Bar-Assistant-Bar-Id': this.barID as string,
+                },
+            }
+        );
+    }
+
+    getCocktail(id: number | string): Promise<{ data: Cocktail }> {
+        return request(
+            `/api/cocktails/${String(id)}`,
+            {
+                method: 'GET',
+                headers: {
+                    Authorization: `Bearer ${this.rootToken}`
                 },
             }
         );

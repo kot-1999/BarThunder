@@ -1,16 +1,18 @@
 'use client'
 
-import { Card, Row, Col, Tag, List, Typography, Divider } from "antd";
+import {Card, Row, Col, Tag, List, Typography, Divider, Button} from "antd";
+import Link from "next/link";
+import {Cocktail} from "@/app/src/types";
 
 const { Title, Text, Paragraph } = Typography;
 
-export default function CocktailList({ cocktails }: any) {
+export default function CocktailList({ cocktails }: { cocktails: Cocktail[] }) {
     return (
         <main style={{ padding: 24 }}>
             <Title level={2}>Cocktails 🍸</Title>
 
             <Row gutter={[16, 16]}>
-                {cocktails.map((drink: any) => (
+                {cocktails.map((drink) => (
                     <Col xs={24} sm={12} lg={8} key={drink.id}>
                         <Card
                             cover={
@@ -44,7 +46,7 @@ export default function CocktailList({ cocktails }: any) {
                             <List
                                 size="small"
                                 dataSource={drink.ingredients}
-                                renderItem={(ing: any) => (
+                                renderItem={(ing) => (
                                     <List.Item>
                                         {ing.amount} {ing.units} {ing.ingredient.name}
                                         {ing.optional && (
@@ -55,6 +57,13 @@ export default function CocktailList({ cocktails }: any) {
                                     </List.Item>
                                 )}
                             />
+                            <div className="flex justify-center mt-4">
+                                <Link href={`/cocktail/${drink.id}`} passHref>
+                                    <Button type="primary">
+                                        View Details
+                                    </Button>
+                                </Link>
+                            </div>
                         </Card>
                     </Col>
                 ))}

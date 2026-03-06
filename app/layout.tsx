@@ -26,7 +26,7 @@ export default function RootLayout({children}: {
                             { key: "/", label: <Link href="/">Home</Link> },
                             { key: "/content", label: <Link href="/content">Content</Link> },
                             { key: "/about", label: <Link href="/about">About</Link> },
-                            { key: "/drinks/new", label: <Link href="/drinks/new">Add Cocktail</Link> },
+                            { key: "/drinks/new", label: <Link href="/app/cocktail/new">Add Cocktail</Link> },
                             { key: "/login", label: <Link href="/login">Login</Link> },
                         ]}
                     />
