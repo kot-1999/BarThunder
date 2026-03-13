@@ -5,7 +5,7 @@ class ApiRequests {
     public barID: string | undefined
     public rootToken: string | undefined
     public rootID: string | undefined
-
+    public barInviteCode: string | undefined
     // ===============================
     // COCKTAILS
     // ===============================

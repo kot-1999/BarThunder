@@ -5,7 +5,7 @@ import { api } from "@/app/src/ApiRequests"
 const rootEmail = process.env.ROOT_EMAIL as string
 const rootPass = process.env.ROOT_PASSWORD as string
 const rootBarSlug = process.env.NEXT_PUBLIC_ROOT_BAR_SLUG as string
-const rootName = process.env.ROOT_NAME as string
+const rootName = process.env.NEXT_PUBLIC_ROOT_NAME as string
 
 
 /**
@@ -14,7 +14,7 @@ const rootName = process.env.ROOT_NAME as string
  * */
 export async function getOrCreateBar() {
 
-    if (!!api.barID || !!api.rootID || !!api.rootToken) {
+    if (!!api.barID || !!api.rootID || !!api.rootToken || !!api.barInviteCode) {
         console.info('Bar exists')
         return
     }
@@ -62,7 +62,7 @@ export async function getOrCreateBar() {
         // Synchronize bar data
         await api.syncBar(loginData.data.token, barData.data.id)
 
-        console.info('Bar was created')
+        console .info('Bar was created')
     } else {
         loginData = await loginRes.json()
     }
@@ -70,7 +70,7 @@ export async function getOrCreateBar() {
     const barsRes = await api.getBars(loginData.data.token)
 
     const barsData: {
-        data: { id: string, slug: string, created_user: { id: string } }[]
+        data: { id: string, invite_code: string, slug: string, created_user: { id: string } }[]
     } = await barsRes.json()
 
     const bar = barsData.data.find((bar) => bar.slug === rootBarSlug)
@@ -82,6 +82,7 @@ export async function getOrCreateBar() {
     api.barID = bar.id
     api.rootToken = loginData.data.token
     api.rootID = bar.created_user.id
+    api.barInviteCode = bar.invite_code
 
-    console.info('Bar was initialized successfully')
+    console.info('Bar was initialized successfully: ', api.barID, api.barInviteCode)
 }
