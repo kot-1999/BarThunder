@@ -10,7 +10,6 @@ export default async function App({ searchParams }: { searchParams: Record<strin
     await getOrCreateBar();
 
     const search = await searchParams
-    console.log(search)
     const cocktails = await api.listCocktails({
         page: search?.page ?? 1,
         name: search?.name ?? null,

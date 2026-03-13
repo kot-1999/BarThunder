@@ -6,6 +6,25 @@ import {cookies} from "next/headers";
 
 const baseUrl = process.env.API_URL;
 
+export class IError extends Error {
+    messages: string[]
+    status: number | string
+    constructor(status: number | string, messages: string[]) {
+        super();
+
+        this.messages = messages;
+        this.status = status;
+    }
+}
+
+export const handleServerError = (err: IError | any) => {
+    if (err.status) {
+        return new Response(JSON.stringify({ messages: err.messages }), { status: err.status });
+    } else {
+        return new Response(JSON.stringify({ messages: [err.message] }), { status: 500 });
+    }
+}
+
 export async function request(
     url: string,
     options: RequestInit = {},
@@ -45,12 +64,19 @@ export async function request(
         const data = await response.json()
 
         if (!response.ok) {
-            throw new Error(response.statusText);
+            if (data.errors) {
+                // data.errors is like: { email: ["..."], password: ["..."] }
+                const messages: string[] = Object.values(data.errors) // array of arrays
+
+                throw new IError(response.status, messages);
+            } else {
+                throw new Error(response.statusText);
+            }
+
         }
 
         return data;
     } catch (error: any) {
-        console.error('API Error:', error);
         throw error;
     }
 }

@@ -12,7 +12,6 @@ export default function CocktailSearch() {
 
     const onFinish = (values: any) => {
         const params = new URLSearchParams(searchParams.toString());
-        console.log(values)
         Object.entries(values).forEach(([key, value]) => {
             if (value) {
                 params.set(key, String(value))

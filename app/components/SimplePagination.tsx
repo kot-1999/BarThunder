@@ -22,7 +22,6 @@ export default function SimplePagination({pagination}: SimplePaginationProps) {
 
         router.replace(`?${params.toString()}`);
     };
-    console.log(pagination)
     return (
         <Pagination
             total={pagination.total}
