@@ -1,25 +1,93 @@
-'use server'
+'use client'
 
-import { getOrCreateBar } from "@/app/src/getOrCreateBar";
-import { api } from "@/app/src/ApiRequests";
+import { useEffect, useState } from "react";
+import { Input, Button, Form } from "antd";
+import { useRouter, useSearchParams } from "next/navigation";
+
 import CocktailList from "@/app/components/CocktailList";
-import CocktailSearch from "@/app/components/CocktailSearch";
 import SimplePagination from "@/app/components/SimplePagination";
+import { showError } from "@/app/src/helpers";
 
-export default async function App({ searchParams }: { searchParams: Record<string, string> }) {
-    await getOrCreateBar();
+export default function App() {
+    const router = useRouter();
+    // Read URL query params
+    const searchParams = useSearchParams();
+    const [form] = Form.useForm();
 
-    const search = await searchParams
-    const cocktails = await api.listCocktails({
-        page: search?.page ?? 1,
-        name: search?.name ?? null,
-        ingredientName: search?.ingredient ?? null,
-    });
+    const [cocktails, setCocktails] = useState<any>(null);
+    const [loading, setLoading] = useState(true);
 
-    return <div>
+    // Parse URL query params
+    const currentParams = Object.fromEntries(searchParams.entries());
 
-        <CocktailSearch/>
-        <CocktailList cocktails={cocktails.data} />
-        <SimplePagination pagination={{ current: cocktails.meta.current_page, total: cocktails.meta.total, perPage: cocktails.meta.per_page }} />
-    </div>;
+    // ---- FETCH DATA ----
+    useEffect(() => {
+        async function load() {
+            try {
+                const res = await fetch(`/api/cocktails?${searchParams.toString()}`);
+                const data = await res.json();
+
+                if (!res.ok) {
+                    showError(data);
+                    return;
+                }
+
+                setCocktails(data);
+            } catch (err) {
+                showError(err);
+            } finally {
+                setLoading(false);
+            }
+        }
+
+        load();
+    }, [searchParams]);
+
+    // ---- SEARCH HANDLER ----
+    const onFinish = (values: any) => {
+        const params = new URLSearchParams(searchParams.toString());
+
+        Object.entries(values).forEach(([key, value]) => {
+            if (value) params.set(key, String(value));
+            else params.delete(key);
+        });
+
+        params.delete("page");
+
+        router.replace(`?${params.toString()}`);
+    };
+
+    if (loading) return <div>Loading...</div>;
+
+    return (
+        <div>
+
+            <Form form={form} layout="inline" onFinish={onFinish}>
+                <Form.Item name="name" initialValue={currentParams?.name ?? ''}>
+                    <Input placeholder="Cocktail name" allowClear />
+                </Form.Item>
+
+                <Form.Item name="ingredient" initialValue={currentParams?.ingredient ?? ''}>
+                    <Input placeholder="Ingredient" allowClear />
+                </Form.Item>
+
+                <Form.Item>
+                    <Button type="primary" htmlType="submit">
+                        Search
+                    </Button>
+                </Form.Item>
+            </Form>
+
+            <CocktailList cocktails={cocktails.data} />
+
+            <SimplePagination
+                pagination={{
+                    current: cocktails.meta.current_page,
+                    total: cocktails.meta.total,
+                    perPage: cocktails.meta.per_page
+                }}
+            />
+
+        </div>
+    );
 }

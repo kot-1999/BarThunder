@@ -12,7 +12,7 @@ export async function POST(req: Request) {
         if (body.mode === 'login') {
             result = await api.login({ email: body.email, password: body.password });
         } else if (body.mode === 'register') {
-            result = await api.register({ email: body.email, password: body.password, name: body.name });
+            result = await api.register({ email: body.email, password: body.password, name: body.name as string });
         }
 
         return new Response(JSON.stringify({ success: true, data: result }), { status: 200 })

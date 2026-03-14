@@ -1,10 +1,8 @@
 import {cookies} from "next/headers";
 
 // ===============================
-// API REQUEST
+// ERROR HANDLING
 // ===============================
-
-const baseUrl = process.env.API_URL;
 
 export class IError extends Error {
     messages: string[]
@@ -25,6 +23,12 @@ export const handleServerError = (err: IError | any) => {
     }
 }
 
+// ===============================
+// API REQUEST
+// ===============================
+
+const baseUrl = process.env.API_URL;
+
 export async function request(
     url: string,
     options: RequestInit = {},
@@ -39,7 +43,7 @@ export async function request(
                     ...(options.headers || {}),
                 },
                 cache: 'no-store',
-                body: options.body ?? undefined,
+                body: options.body ?? {},
                 method: options.method ?? undefined
             })
         const response = await fetch(
@@ -85,7 +89,7 @@ export async function request(
 // COOKIES
 // ===============================
 
-type Key = 'token'
+type Key = 'userToken' | 'root'
 
 export async function setCookie(key: Key, data: any) {
     const cookieStore = await cookies();
@@ -98,8 +102,7 @@ export async function setCookie(key: Key, data: any) {
 }
 export async function getCookie(key: Key) {
     const cookieStore = await cookies();
-    const cookie = cookieStore.get('token')
-
+    const cookie = cookieStore.get(key)
     if (cookie?.value) {
         return JSON.parse(cookie.value)
     }
@@ -112,7 +115,3 @@ export async function deleteCookie(key: Key) {
 
     cookieStore.delete(key);
 }
-
-// ===============================
-// *********
-// ===============================
