@@ -11,7 +11,7 @@ class ApiRequests {
         options: {
             page: number | string
             name?: string,
-            ingredientName?: string
+            ingredientIDs?: string
         } = {
             page: 1
         }
@@ -27,8 +27,8 @@ class ApiRequests {
             reqUrl += `&filter[name]=${options.name}`
         }
 
-        if (options.ingredientName) {
-            reqUrl += `&filter[ingredient_name]=${options.ingredientName}`
+        if (options.ingredientIDs) {
+            reqUrl += `&filter[specific_ingredients]=${options.ingredientIDs}`
         }
 
         return request(

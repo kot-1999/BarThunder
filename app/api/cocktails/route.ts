@@ -8,12 +8,12 @@ export async function GET(req: NextRequest) {
 
         const page = searchParams.get('page') ?? '1';
         const name = searchParams.get('name') ?? undefined;
-        const ingredientName = searchParams.get('ingredientName') ?? undefined;
-
+        const ingredientIDs = searchParams.get('ingredient') ?? undefined;
+        console.log(name, ingredientIDs);
         const data = await api.listCocktails({
             page,
             name,
-            ingredientName,
+            ingredientIDs,
         });
 
         return Response.json(data);
@@ -21,3 +21,13 @@ export async function GET(req: NextRequest) {
         return handleServerError(err)
     }
 }
+
+// export async function POST(req: NextRequest) {
+//     try {
+//         const { body } = req
+//
+//         api.
+//     } catch (err) {
+//         return handleServerError(err)
+//     }
+// }
