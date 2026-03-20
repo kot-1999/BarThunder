@@ -180,6 +180,46 @@ class ApiRequests {
         );
     }
 
+    async getGlasses(name?: string) {
+        const userToken = await getCookie('userToken')
+        const root = await getCookie('root');
+
+        let url = `/api/glasses?per_page=100`;
+        if (name) {
+            url += `&filter[name]=${name}`
+        }
+        return request(
+            url,
+            {
+                method: 'GET',
+                headers: {
+                    Authorization: `Bearer ${userToken ?? root.rootToken}`,
+                    'Bar-Assistant-Bar-Id': String(root.barID),
+                }
+            }
+        );
+    }
+
+    async getMethods(name?: string) {
+        const userToken = await getCookie('userToken')
+        const root = await getCookie('root');
+
+        let url = `/api/cocktail-methods?per_page=100`;
+        if (name) {
+            url += `&filter[name]=${name}`
+        }
+        return request(
+            url,
+            {
+                method: 'GET',
+                headers: {
+                    Authorization: `Bearer ${userToken ?? root.rootToken}`,
+                    'Bar-Assistant-Bar-Id': String(root.barID),
+                }
+            }
+        );
+    }
+
     private async joinBar(token?: string) {
         const userToken = await getCookie('userToken')
         let root = await getCookie('root');
