@@ -1,7 +1,6 @@
 'use server';
 
 import {api} from "@/app/src/ApiRequests";
-import {getOrCreateBar} from "@/app/src/getOrCreateBar";
 import CocktailDetails from "@/app/components/CocktailDetails";
 
 interface Props {
@@ -11,8 +10,6 @@ interface Props {
 }
 
 export default async function DrinkDetails({ params }: Props) {
-    await getOrCreateBar();
-
     const values = await params
 
     const cocktail = await api.getCocktail(values.id)
