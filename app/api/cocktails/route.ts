@@ -9,7 +9,7 @@ export async function GET(req: NextRequest) {
         const page = searchParams.get('page') ?? '1';
         const name = searchParams.get('name') ?? undefined;
         const ingredientIDs = searchParams.get('ingredient') ?? undefined;
-        console.log(name, ingredientIDs);
+
         const data = await api.listCocktails({
             page,
             name,

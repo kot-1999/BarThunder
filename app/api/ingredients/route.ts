@@ -5,7 +5,7 @@ import {handleServerError} from "@/app/src/server";
 export async function GET(req: NextRequest) {
     try {
         const { searchParams } = new URL(req.url);
-        console.log(searchParams);
+
         const search = searchParams.get('search')
 
         const data = await api.getIngredients(search ?? undefined);
