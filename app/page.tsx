@@ -1,7 +1,7 @@
 'use client'
 
 import { useEffect, useState } from "react";
-import { Input, Button, Form } from "antd";
+import { Input, Button, Form, Select } from "antd";
 import { useRouter, useSearchParams } from "next/navigation";
 
 import CocktailList from "@/app/components/CocktailList";
@@ -15,10 +15,12 @@ export default function App() {
 
     const [cocktails, setCocktails] = useState<any>(null);
     const [loading, setLoading] = useState(true);
+    const [ingredientOptions, setIngredientOptions] = useState<any[]>([]);
+    const [ingredientLoading, setIngredientLoading] = useState(false);
 
     const currentParams = Object.fromEntries(searchParams.entries());
 
-    // ---- FETCH DATA ----
+    // Fetch cocktails data
     useEffect(() => {
         async function load() {
             try {
@@ -41,17 +43,51 @@ export default function App() {
         load();
     }, [searchParams]);
 
-    // ---- SEARCH HANDLER ----
+    // Fetch ingredients
+    const handleIngredientSearch = async (value: string) => {
+        if (!value) {
+            setIngredientOptions([]);
+            return;
+        }
+
+        try {
+            setIngredientLoading(true);
+
+            const res = await fetch(`/api/ingredients?search=${value}`);
+            const result = await res.json();
+            if (!res.ok) {
+                showError(result);
+                return;
+            }
+
+            setIngredientOptions(
+                result.data.map((item: any) => ({
+                    label: item.name,
+                    value: item.id,
+                }))
+            );
+        } catch (err) {
+            showError(err);
+        } finally {
+            setIngredientLoading(false);
+        }
+    };
+
+    // Form submission
     const onFinish = (values: any) => {
         const params = new URLSearchParams(searchParams.toString());
 
         Object.entries(values).forEach(([key, value]) => {
-            if (value) params.set(key, String(value));
-            else params.delete(key);
+            if (Array.isArray(value) && value.length > 0) {
+                params.set(key, value.join(','));
+            } else if (value) {
+                params.set(key, String(value));
+            } else {
+                params.delete(key);
+            }
         });
 
         params.delete("page");
-
         router.replace(`?${params.toString()}`);
     };
 
@@ -65,8 +101,21 @@ export default function App() {
                     <Input placeholder="Cocktail name" allowClear />
                 </Form.Item>
 
-                <Form.Item name="ingredient" initialValue={currentParams?.ingredient ?? ''}>
-                    <Input placeholder="Ingredient" allowClear />
+                <Form.Item
+                    name="ingredient"
+                    initialValue={currentParams?.ingredient ? currentParams.ingredient.split(',') : []}
+                >
+                    <Select
+                        style={{ minWidth: 200 }}
+                        mode="multiple"
+                        placeholder="Ingredient"
+                        allowClear
+                        showSearch
+                        onSearch={handleIngredientSearch}
+                        options={ingredientOptions}
+                        loading={ingredientLoading}
+                        filterOption={false}
+                    />
                 </Form.Item>
 
                 <Form.Item>
