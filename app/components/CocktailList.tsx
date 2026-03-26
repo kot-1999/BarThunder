@@ -8,7 +8,7 @@ const { Title, Text, Paragraph } = Typography;
 
 export default function CocktailList({ cocktails }: { cocktails: Cocktail[] }) {
     return (
-        <main style={{ padding: 24 }}>
+        <main className="p-6">
             <Title level={2}>Cocktails 🍸</Title>
 
             <Row gutter={[16, 16]}>
@@ -20,7 +20,7 @@ export default function CocktailList({ cocktails }: { cocktails: Cocktail[] }) {
                                     <img
                                         src={drink.images[0].url}
                                         alt={drink.name}
-                                        style={{ height: 350, objectFit: "cover" }}
+                                        className="h-87.5 object-cover w-full"
                                     />
                                 )
                             }
@@ -43,20 +43,17 @@ export default function CocktailList({ cocktails }: { cocktails: Cocktail[] }) {
 
                             <Title level={5}>Ingredients</Title>
 
-                            <List
-                                size="small"
-                                dataSource={drink.ingredients}
-                                renderItem={(ing) => (
-                                    <List.Item>
-                                        {ing.amount} {ing.units} {ing.ingredient.name}
-                                        {ing.optional && (
-                                            <Tag color="orange" style={{ marginLeft: 8 }}>
-                                                optional
-                                            </Tag>
-                                        )}
-                                    </List.Item>
-                                )}
-                            />
+                            <div className="flex flex-wrap gap-2">
+                                {drink.ingredients.map((ing, index) => (
+                                    <Tag
+                                        key={index}
+                                        color={ing.optional ? 'orange' : 'blue'}
+                                        style={{ marginBottom: 4 }}
+                                    >
+                                        {ing.ingredient.name}
+                                    </Tag>
+                                ))}
+                            </div>
                             <div className="flex justify-center mt-4">
                                 <Link href={`/cocktail/${drink.id}`} passHref>
                                     <Button type="primary">
