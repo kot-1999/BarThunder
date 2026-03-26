@@ -7,6 +7,7 @@ import { useRouter, useSearchParams } from "next/navigation";
 import CocktailList from "@/app/components/CocktailList";
 import SimplePagination from "@/app/components/SimplePagination";
 import { showError } from "@/app/src/helpers";
+import ChuckNorrisJoke from "@/app/components/ChuckNorris";
 
 export default function App() {
     const router = useRouter();
@@ -44,7 +45,7 @@ export default function App() {
     }, [searchParams]);
 
     // Fetch ingredients
-    const handleIngredientSearch = async (value: string) => {
+    const handleIngredientSearch = async (value: string = 'a') => {
         if (!value) {
             setIngredientOptions([]);
             return;
@@ -95,7 +96,7 @@ export default function App() {
 
     return (
         <div>
-
+            <ChuckNorrisJoke/>
             <Form form={form} layout="inline" onFinish={onFinish}>
                 <Form.Item name="name" initialValue={currentParams?.name ?? ''}>
                     <Input placeholder="Cocktail name" allowClear />
@@ -113,6 +114,7 @@ export default function App() {
                         showSearch
                         onSearch={handleIngredientSearch}
                         options={ingredientOptions}
+                        onFocus={() => handleIngredientSearch()}
                         loading={ingredientLoading}
                         filterOption={false}
                     />

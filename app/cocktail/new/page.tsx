@@ -1,10 +1,13 @@
 'use client'
 
 import { useState } from "react";
-import { Form, Input, Button, Select, Space, InputNumber } from "antd";
+import { Form, Input, Button, Select, Space, Upload } from "antd";
 import { PlusOutlined, MinusCircleOutlined } from "@ant-design/icons";
+import type { UploadFile } from "antd/es/upload/interface";
 import { showError } from "@/app/src/helpers";
 import { nanoid } from 'nanoid';
+import ChuckNorrisFloating from "@/app/components/ChuckNorris";
+import ChuckNorrisJoke from "@/app/components/ChuckNorris";
 
 export default function CocktailUploadForm() {
     const [form] = Form.useForm();
@@ -17,6 +20,9 @@ export default function CocktailUploadForm() {
 
     const [methodOptions, setMethodOptions] = useState<any[]>([]);
     const [methodSearch, setMethodSearch] = useState('');
+
+    const [file, setFile] = useState<UploadFile | null>(null);
+    const [uploadedImage, setUploadedImage] = useState<any | null>(null)
 
     const handleGlassSearch = async (value?: string) => {
         if (value)
@@ -42,9 +48,48 @@ export default function CocktailUploadForm() {
         }
     };
 
+    const handleUpload = async ({ file, onSuccess, onError }: any) => {
+        try {
+            const formData = new FormData();
+            formData.append('images[0][image]', file);
+            formData.append('images[0][sort]', '1');
+
+            const res = await fetch('/api/image', {
+                method: 'POST',
+                body: formData,
+            });
+
+            const data = await res.json();
+
+            if (!res.ok) {
+                showError(data);
+                onError?.(data);
+                return;
+            }
+
+            const uploaded = data.data?.[0]; // your backend should return {id, url, ...}
+
+            // Update fileList so AntD shows preview
+            const updatedFile: UploadFile = {
+                uid: file.uid,
+                name: file.name,
+                status: 'done',
+                url: uploaded?.url,  // <-- THIS IS KEY
+            };
+
+            setFile(updatedFile);
+            setUploadedImage(uploaded);
+
+            onSuccess?.(data);
+        } catch (err) {
+            showError(err);
+            onError?.(err);
+        }
+    };
+
     const handleMethodSearch = async (value?: string) => {
         if (value)
-            setGlassSearch(value)
+            setMethodSearch(value)
 
         try {
             const res = await (value ? fetch(`/api/methods?search=${encodeURIComponent(value)}`) : fetch(`/api/methods`));
@@ -114,10 +159,11 @@ export default function CocktailUploadForm() {
             name: values.name,
             description: values.description,
             garnish: values.garnish,
-            glass_id: values.glass_id,
-            method_id: values.method_id,
+            glass_id: values.glass.value,
+            method_id: values.method.value,
             instructions: instructionsStr,
-            ingredients: ingredientsArr
+            ingredients: ingredientsArr,
+            image_id: uploadedImage?.id // single image ID
         };
 
         console.log("Payload to submit:", payload);
@@ -128,9 +174,29 @@ export default function CocktailUploadForm() {
 
     return (
         <Form form={form} layout="vertical" onFinish={onFinish}>
-
-            <Form.Item name="name" label="Cocktail Name" rules={[{ required: true }]}>
+            <ChuckNorrisJoke/>
+            <Form.Item name="name" label="Cocktail Name" rules={[{ required: true, message: 'Name is required' }]}>
                 <Input placeholder="Enter cocktail name" />
+            </Form.Item>
+
+            <Form.Item label="Cocktail Image">
+                <Upload
+                    listType="picture-card"
+                    fileList={file ? [file] : []} // single file
+                    customRequest={handleUpload}
+                    onRemove={() => {
+                        setFile(null);
+                        setUploadedImage(null);
+                    }}
+                    maxCount={1}
+                >
+                    {!file && (
+                        <div>
+                            <PlusOutlined />
+                            <div style={{ marginTop: 8 }}>Upload</div>
+                        </div>
+                    )}
+                </Upload>
             </Form.Item>
 
             <Form.List name="instructions" initialValue={['']}>
@@ -142,7 +208,7 @@ export default function CocktailUploadForm() {
                                 <Form.Item
                                     {...field}
                                     name={[field.name]}
-                                    rules={[{ required: true, message: 'Please input step' }]}
+                                    rules={[{ required: true, message: 'Enter preparation step' }]}
                                 >
                                     <Input placeholder={`Step ${index + 1}`} />
                                 </Form.Item>
@@ -160,7 +226,7 @@ export default function CocktailUploadForm() {
                 )}
             </Form.List>
 
-            <Form.Item name="description" label="Description">
+            <Form.Item name="description" label="Description" rules={[{ required: true, message: 'Provide description' }]}>
                 <Input.TextArea placeholder="Cocktail description" rows={3} />
             </Form.Item>
 

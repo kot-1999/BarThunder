@@ -2,6 +2,7 @@
 
 import {api} from "@/app/src/ApiRequests";
 import CocktailDetails from "@/app/components/CocktailDetails";
+import ChuckNorrisJoke from "@/app/components/ChuckNorris";
 
 interface Props {
     params: {
@@ -16,6 +17,7 @@ export default async function DrinkDetails({ params }: Props) {
 
     return (
         <div>
+            <ChuckNorrisJoke/>
             <CocktailDetails cocktail={cocktail.data}/>
         </div>
     );
