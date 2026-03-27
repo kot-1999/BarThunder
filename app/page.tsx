@@ -27,7 +27,7 @@ export default function App() {
             try {
                 const res = await fetch(`/api/cocktails?${searchParams.toString()}`);
                 const data = await res.json();
-
+                console.log('!', res)
                 if (!res.ok) {
                     showError(data);
                     return;
@@ -127,13 +127,13 @@ export default function App() {
                 </Form.Item>
             </Form>
 
-            <CocktailList cocktails={cocktails.data} />
+            <CocktailList cocktails={cocktails?.data ?? []} />
 
             <SimplePagination
                 pagination={{
-                    current: cocktails.meta.current_page,
-                    total: cocktails.meta.total,
-                    perPage: cocktails.meta.per_page
+                    current: cocktails?.meta?.current_page ?? 1,
+                    total: cocktails?.meta.total ?? 0,
+                    perPage: cocktails?.meta.per_page ?? 24
                 }}
             />
 

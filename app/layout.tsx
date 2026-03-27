@@ -17,7 +17,7 @@ export default function RootLayout({children}: {
     const year = new Date().getFullYear();
     return (
         <html lang="en">
-        <body>
+        <body suppressHydrationWarning>
         <ConfigProvider
             theme={{
                 token: {

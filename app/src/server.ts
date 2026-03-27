@@ -97,7 +97,7 @@ export async function setCookie(key: Key, data: any) {
         httpOnly: true,
         sameSite: 'lax',
         path: '/',
-        maxAge: 60 * 60 * 12, // 12 hours
+        maxAge: 60 * 60 * 1, // 1 hour
     });
 }
 export async function getCookie(key: Key) {

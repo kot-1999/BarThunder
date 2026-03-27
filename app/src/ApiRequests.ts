@@ -18,7 +18,8 @@ class ApiRequests {
     ): Promise<{ data: Cocktail[], meta: Meta }> {
         const userToken = await getCookie('userToken')
         let root = await getCookie('root');
-        if (!root && !userToken) {
+        console.log(root)
+        if (!root || !userToken) {
             root = await this.getOrCreateBar()
         }
 
@@ -36,7 +37,7 @@ class ApiRequests {
             {
                 method: 'GET',
                 headers: {
-                    Authorization: `Bearer ${userToken ?? root.rootToken}`,
+                    Authorization: `Bearer ${root.rootToken ?? userToken}`,
                     'Bar-Assistant-Bar-Id': root.barID as string,
                 },
             }

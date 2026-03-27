@@ -3,10 +3,13 @@
 import {Card, Row, Col, Tag, List, Typography, Divider, Button} from "antd";
 import Link from "next/link";
 import {Cocktail} from "@/app/src/types";
+import {decodeText} from "@/app/src/helpers";
 
 const { Title, Text, Paragraph } = Typography;
 
 export default function CocktailList({ cocktails }: { cocktails: Cocktail[] }) {
+    console.log(cocktails.forEach((drink) => console.log(drink.description)));
+
     return (
         <main className="p-6">
             <Title level={2}>Cocktails 🍸</Title>
@@ -27,7 +30,11 @@ export default function CocktailList({ cocktails }: { cocktails: Cocktail[] }) {
                         >
                             <Title level={4}>{drink.name}</Title>
 
-                            <Paragraph>{drink.description}</Paragraph>
+                            <Paragraph ellipsis={{
+                                rows: 3,
+                                expandable: true,
+                                symbol: "Show more"
+                            }}>{decodeText(drink.description)}</Paragraph>
 
                             {drink.tags?.map((tag: { name: string }) => (
                                 <Tag key={tag.name}>{tag.name}</Tag>

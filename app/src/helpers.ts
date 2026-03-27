@@ -1,6 +1,8 @@
 'use client'
 
 import {message} from "antd";
+import { decode } from "he";
+
 
 export const showError = (data: any) => {
     if (data?.messages) {
@@ -11,3 +13,5 @@ export const showError = (data: any) => {
         message.error(data?.messages ?? 'Something went wrong')
     }
 }
+
+export const decodeText = (text: string) => decode(text);
