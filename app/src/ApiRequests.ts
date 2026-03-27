@@ -22,7 +22,7 @@ class ApiRequests {
             root = await this.getOrCreateBar()
         }
 
-        let reqUrl = `/api/cocktails?page=${options.page.toString()}&include=images,glass,method,tags`
+        let reqUrl = `/api/cocktails?per_page=24&page=${options.page.toString()}&include=images,glass,method,tags`
         if (options.name) {
             reqUrl += `&filter[name]=${options.name}`
         }

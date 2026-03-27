@@ -109,9 +109,3 @@ export async function getCookie(key: Key) {
 
     return null
 }
-
-export async function deleteCookie(key: Key) {
-    const cookieStore = await cookies();
-
-    cookieStore.delete(key);
-}

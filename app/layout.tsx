@@ -2,7 +2,7 @@
 
 import "./globals.css";
 
-import {Layout, Menu, Space} from "antd";
+import {ConfigProvider, Layout, Menu, Space} from "antd";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import {Footer} from "antd/es/layout/layout";
@@ -14,10 +14,20 @@ export default function RootLayout({children}: {
     children: React.ReactNode;
 }) {
     const pathname = usePathname();
-
+    const year = new Date().getFullYear();
     return (
         <html lang="en">
         <body>
+        <ConfigProvider
+            theme={{
+                token: {
+                    colorPrimary: "#53bf14", // primary color
+                    borderRadius: 8,          // global border radius
+                    fontSize: 16,             // base font size
+                    colorTextBase: "#302f2f",    // base text color
+                },
+            }}
+        >
             <Layout style={{ minHeight: "100vh" }}>
                 <Header>
                     <Menu
@@ -39,7 +49,7 @@ export default function RootLayout({children}: {
                 </Content>
 
                 <Footer style={{ textAlign: "center", marginTop: 40 }}>
-                    <Space direction="vertical" size={4}>
+                    <Space orientation="vertical" size={4}>
                         <Text>
                             🍸 Cocktail Library — Discover and explore cocktail recipes
                         </Text>
@@ -55,11 +65,12 @@ export default function RootLayout({children}: {
                         </Space>
 
                         <Text type="secondary">
-                            © {new Date().getFullYear()} Bar Thunder App
+                            © {year} Bar Thunder App
                         </Text>
                     </Space>
                 </Footer>
             </Layout>
+        </ConfigProvider>
         </body>
         </html>
     );
