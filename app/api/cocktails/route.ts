@@ -18,16 +18,17 @@ export async function GET(req: NextRequest) {
 
         return Response.json(data);
     } catch (err) {
+        console.error(err);
         return handleServerError(err)
     }
 }
 
-// export async function POST(req: NextRequest) {
-//     try {
-//         const { body } = req
-//
-//         api.
-//     } catch (err) {
-//         return handleServerError(err)
-//     }
-// }
+export async function POST(req: NextRequest) {
+    try {
+        const data =  await req.json()
+        await api.createCocktail(data)
+        return Response.json('All ok')
+    } catch (err) {
+        return handleServerError(err)
+    }
+}

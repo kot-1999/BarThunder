@@ -6,7 +6,6 @@ import Image from 'next/image';
 
 const { Paragraph } = Typography;
 
-// 👉 put your actual filenames here
 const icons = [
     '/norris/01.png',
     '/norris/02.png',
@@ -21,6 +20,7 @@ const icons = [
 export default function ChuckNorrisJoke() {
     const [joke, setJoke] = useState('');
     const [icon, setIcon] = useState('');
+    const [open, setOpen] = useState(false);
 
     useEffect(() => {
         const fetchJoke = async () => {
@@ -33,37 +33,33 @@ export default function ChuckNorrisJoke() {
             }
         };
 
-        const randomIcon =
-            icons[Math.floor(Math.random() * icons.length)];
-
-        setIcon(randomIcon);
+        setIcon(icons[Math.floor(Math.random() * icons.length)]);
         fetchJoke();
     }, []);
 
     return (
         <div
-            style={{
-                position: 'fixed',
-                bottom: 20,
-                right: 20,
-                zIndex: 1000,
-                maxWidth: 600
-            }}
+            className={`
+                fixed bottom-30 right-0 z-[1000] max-w-150 cursor-pointer
+                transition-transform duration-300 ease-in-out
+                ${open ? 'translate-x-0' : 'translate-x-4/5'}
+            `}
+            onMouseEnter={() => setOpen(true)}
+            onMouseLeave={() => setOpen(false)}
+            onClick={() => setOpen(!open)}
         >
-            <Card
-                hoverable
-                size="small"
-            >
-                <div style={{ display: 'flex', gap: 14, alignItems: 'center' }}>
+            <Card hoverable size="small">
+                <div className="flex items-center gap-3">
                     {icon && (
                         <Image
                             src={icon}
                             alt="Chuck Norris"
-                            width={100}
-                            height={100}
+                            width={80}
+                            height={80}
+                            className="rounded-full"
                         />
                     )}
-                    <Paragraph>
+                    <Paragraph className="m-0">
                         {joke || 'Loading joke...'}
                     </Paragraph>
                 </div>

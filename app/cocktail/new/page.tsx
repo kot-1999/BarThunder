@@ -1,12 +1,11 @@
 'use client'
 
 import { useState } from "react";
-import { Form, Input, Button, Select, Space, Upload } from "antd";
+import {Form, Input, Button, Select, Space, Upload, Checkbox, Row, Col} from "antd";
 import { PlusOutlined, MinusCircleOutlined } from "@ant-design/icons";
 import type { UploadFile } from "antd/es/upload/interface";
 import { showError } from "@/app/src/helpers";
 import { nanoid } from 'nanoid';
-import ChuckNorrisFloating from "@/app/components/ChuckNorris";
 import ChuckNorrisJoke from "@/app/components/ChuckNorris";
 
 export default function CocktailUploadForm() {
@@ -142,31 +141,51 @@ export default function CocktailUploadForm() {
         }
     };
 
-    const onFinish = (values: any) => {
+    const onFinish = async (values: any) => {
         // Combine instructions array into numbered string
-        const instructionsStr = values.instructions
-            .map((step: string, i: number) => `${i + 1}. ${step}`)
-            .join('\n');
+        try {
+            const instructionsStr = values.instructions
+                .map((step: string, i: number) => `${i + 1}. ${step}`)
+                .join('\n');
+            console.log(values)
+            // Prepare ingredients array
+            const ingredientsArr = values.ingredients.map((ing: any) => ({
+                ingredient_id: ing.ingredient.value,
+                name: ing.ingredient.label,
+                amount: Number(ing.amount),
+                units: 'ml',
+                optional: ing.optional
+            }));
 
-        // Prepare ingredients array
-        const ingredientsArr = values.ingredients.map((ing: any) => ({
-            ingredient_id: ing.ingredient.value,
-            name: ing.ingredient.label,
-            amount: ing.amount
-        }));
+            console.log('???????????????', ingredientsArr);
 
-        const payload = {
-            name: values.name,
-            description: values.description,
-            garnish: values.garnish,
-            glass_id: values.glass.value,
-            method_id: values.method.value,
-            instructions: instructionsStr,
-            ingredients: ingredientsArr,
-            image_id: uploadedImage?.id // single image ID
-        };
+            const payload = {
+                name: values.name,
+                description: values.description,
+                garnish: values.garnish,
+                glass_id: values.glass.value,
+                method_id: values.method.value,
+                instructions: instructionsStr,
+                ingredients: ingredientsArr,
+                images: uploadedImage?.id ? [uploadedImage?.id] : undefined
+            };
+            console.log('!!!!!!!!!!!!', payload);
 
-        console.log("Payload to submit:", payload);
+            const res = await fetch(`/api/cocktails`, {
+                method: 'POST',
+                body: JSON.stringify(payload),
+            })
+
+            const result = await res.json();
+
+            if (!res.ok) {
+                showError(result);
+                return;
+            }
+
+        }catch(err) {
+            showError(err);
+        }
 
         // Here you would send payload to backend
         // fetch('/api/cocktails', { method: 'POST', body: JSON.stringify(payload), headers: {...} })
@@ -260,44 +279,71 @@ export default function CocktailUploadForm() {
                 />
             </Form.Item>
 
-            <Form.List name="ingredients" initialValue={[{ ingredient: null, amount: '' }]}>
+            <Form.List name="ingredients" initialValue={[{ ingredient: null, amount: '', optional: false }]}>
                 {(fields, { add, remove }) => (
-                    <div>
+                    <div >
                         <label>Ingredients</label>
-                        {fields.map((field, index) => (
-                            <Space key={field.key} align="baseline" style={{ display: 'flex', marginBottom: 8 }}>
-                                <Form.Item
-                                    {...field}
-                                    name={[field.name, 'ingredient']}
-                                    rules={[{ required: true, message: 'Select ingredient' }]}
-                                    style={{ width: 250 }}
-                                >
-                                    <Select
-                                        showSearch
-                                        placeholder="Type to search ingredient"
-                                        labelInValue
-                                        allowClear
-                                        filterOption={false}
-                                        options={ingredientOptionsMap[field.key] || []} // use per-field options
-                                        value={ingredientSearch[field.key] ? { label: ingredientSearch[field.key], value: undefined } : undefined}
-                                        onSearch={(val) => handleIngredientSearch(field.key, val)}
-                                        onFocus={() => handleIngredientSearch(field.key)}
-                                    />
-                                </Form.Item>
 
-                                <Form.Item
-                                    {...field}
-                                    name={[field.name, 'amount']}
-                                    rules={[{ required: true, message: 'Enter amount' }]}
-                                >
-                                    <Input placeholder="Amount (e.g., 50ml)" />
-                                </Form.Item>
+                        {fields.map((field) => (
+                            <div
+                                key={field.key}
+                                className="bg-white border border-gray-200 rounded-lg p-3 mb-3 transition hover:shadow-sm"
+                            >
+                            <Row key={field.key} gutter={8} style={{ marginBottom: 8 }}>
 
-                                {fields.length > 1 && (
-                                    <MinusCircleOutlined onClick={() => remove(field.name)} />
-                                )}
-                            </Space>
+                                {/* Ingredient */}
+                                <Col xs={24} sm={12} md={10}>
+                                    <Form.Item
+                                        {...field}
+                                        name={[field.name, 'ingredient']}
+                                        rules={[{ required: true, message: 'Select ingredient' }]}
+                                    >
+                                        <Select
+                                            showSearch
+                                            placeholder="Ingredient name"
+                                            labelInValue
+                                            allowClear
+                                            filterOption={false}
+                                            options={ingredientOptionsMap[field.key] || []}
+                                            onSearch={(val) => handleIngredientSearch(field.key, val)}
+                                            onFocus={() => handleIngredientSearch(field.key)}
+                                        />
+                                    </Form.Item>
+                                </Col>
+
+                                {/* Amount */}
+                                <Col xs={12} sm={6} md={4}>
+                                    <Form.Item
+                                        {...field}
+                                        name={[field.name, 'amount']}
+                                        rules={[{ required: true, message: 'ml' }]}
+                                    >
+                                        <Input placeholder="ml" />
+                                    </Form.Item>
+                                </Col>
+
+                                {/* Optional */}
+                                <Col xs={12} sm={6} md={4}>
+                                    <Form.Item
+                                        {...field}
+                                        name={[field.name, 'optional']}
+                                        valuePropName="checked"
+                                    >
+                                        <Checkbox>Optional</Checkbox>
+                                    </Form.Item>
+                                </Col>
+
+                                {/* Remove button */}
+                                <Col xs={24} sm={24} md={2}>
+                                    {fields.length > 1 && (
+                                        <MinusCircleOutlined onClick={() => remove(field.name)} />
+                                    )}
+                                </Col>
+
+                            </Row>
+                            </div>
                         ))}
+
                         <Form.Item>
                             <Button type="dashed" onClick={() => add()} block icon={<PlusOutlined />}>
                                 Add Ingredient

@@ -1,4 +1,4 @@
-import {getCookie, request, setCookie} from "@/app/src/server";
+import {getCookie, IError, request, setCookie} from "@/app/src/server";
 import {Cocktail, Meta} from "@/app/src/types";
 
 class ApiRequests {
@@ -18,8 +18,8 @@ class ApiRequests {
     ): Promise<{ data: Cocktail[], meta: Meta }> {
         const userToken = await getCookie('userToken')
         let root = await getCookie('root');
-        console.log(root)
-        if (!root || !userToken) {
+
+        if (!root) {
             root = await this.getOrCreateBar()
         }
 
@@ -31,7 +31,6 @@ class ApiRequests {
         if (options.ingredientIDs) {
             reqUrl += `&filter[specific_ingredients]=${options.ingredientIDs}`
         }
-
         return request(
             reqUrl,
             {
@@ -60,6 +59,36 @@ class ApiRequests {
         );
     }
 
+    async createCocktail(data: any) {
+
+        let root = await getCookie('root');
+        const userToken = await getCookie('userToken');
+
+        if (!userToken) {
+            throw new IError(401, ['Authentication is required'])
+        }
+
+        if (!root) {
+            root = await this.getOrCreateBar()
+        }
+
+        return request('/api/cocktails', {
+            method: 'POST',
+            headers: {
+                Authorization: `Bearer ${userToken}`,
+                'Bar-Assistant-Bar-Id': String(root.barID),
+
+            },
+            body: JSON.stringify({
+                ...data,
+                ingredients: data.ingredients.map((item: any, index: number) => ({
+                    ...item,
+                    sort: index
+                }))
+            }),
+        });
+    }
+
     // ===============================
     // AUTH
     // ===============================
@@ -83,7 +112,9 @@ class ApiRequests {
         }, isRoot);
         if (!isRoot) {
             await setCookie('userToken', result.data.token)
+            const { data } = await this.getProfile()
             await this.joinBar(result.data.token);
+            await this.updateUserRole(data.name, data.email, data.id)
         }
 
         return result;
@@ -221,6 +252,37 @@ class ApiRequests {
         );
     }
 
+    async getProfile(token?: string) {
+        const userToken = await getCookie('userToken');
+        if (!userToken && !token) {
+            throw new IError(401, ['Authentication is required'])
+        }
+
+        return request(`/api/profile`, {
+            method: 'GET',
+            headers: {
+                Authorization: `Bearer ${token ?? userToken}`,
+            }
+        });
+    }
+
+    async updateUserRole(name: string, email: string, userId: number) {
+        const root = await getCookie('root');
+
+        return request(`/api/users/${userId}`, {
+            method: 'PUT',
+            headers: {
+                Authorization: `Bearer ${root.rootToken}`,
+                'Bar-Assistant-Bar-Id': String(root.barID)
+            },
+            body: JSON.stringify({
+                name,
+                email,
+                role_id: 1
+            }),
+        });
+    }
+
     private async joinBar(token?: string) {
         const userToken = await getCookie('userToken')
         let root = await getCookie('root');
@@ -307,7 +369,6 @@ class ApiRequests {
             // Synchronize bar data
             await api.syncBar(loginData.data.token, barData.data.id)
 
-            console .info('Bar was created')
         } else {
             loginData = await loginRes.json()
         }

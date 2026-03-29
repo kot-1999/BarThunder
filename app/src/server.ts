@@ -17,7 +17,8 @@ export class IError extends Error {
 
 export const handleServerError = (err: IError | any) => {
     if (err.status) {
-        return new Response(JSON.stringify({ messages: err.messages }), { status: err.status });
+        const messages = err.messages[0]?.length ? err.messages.map((message: string[]) => message[0]) : err.messages;
+        return new Response(JSON.stringify({ messages: messages }), { status: err.status });
     } else {
         return new Response(JSON.stringify({ messages: [err.message] }), { status: 500 });
     }
@@ -66,6 +67,7 @@ export async function request(
         }
 
         const data = await response.json()
+        console.log(data, response)
 
         if (!response.ok) {
             if (data.errors) {

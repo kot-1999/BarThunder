@@ -96,7 +96,7 @@ export default function App() {
 
     return (
         <div>
-            <ChuckNorrisJoke/>
+            <ChuckNorrisJoke key={searchParams.toString()}/>
             <Form form={form} layout="inline" onFinish={onFinish}>
                 <Form.Item name="name" initialValue={currentParams?.name ?? ''}>
                     <Input placeholder="Cocktail name" allowClear />
