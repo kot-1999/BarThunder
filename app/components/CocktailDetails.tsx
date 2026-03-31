@@ -9,14 +9,18 @@ import {
     Tag,
     List,
     Divider,
-    Button
+    Button, Flex, Steps, theme
 } from "antd";
 import Paragraph from "antd/es/typography/Paragraph";
 import Title from "antd/es/typography/Title";
 import Text from "antd/es/typography/Text";
+import {useState} from "react";
 
 export default function CocktailDetails({ cocktail }: { cocktail: Cocktail }) {
     const router = useRouter();
+    const [current, setCurrent] = useState(0);
+    const { token } = theme.useToken();
+    const totalAmount = cocktail.ingredients.reduce((sum, item) => sum + item.amount, 0);
 
     return (
         <main style={{ padding: 24, maxWidth: 1100, margin: "0 auto" }}>
@@ -82,31 +86,114 @@ export default function CocktailDetails({ cocktail }: { cocktail: Cocktail }) {
 
                 {/* Ingredients */}
                 <Title level={4}>Ingredients</Title>
-
                 <List
                     bordered
-                    dataSource={[...cocktail.ingredients].sort((a, b) => a.sort - b.sort)}
-                    renderItem={(item) => (
-                        <List.Item>
-                            {item.amount} {item.units} {item.ingredient.name}
-                            {item.optional && (
-                                <Tag color="orange" style={{ marginLeft: 8 }}>
-                                    optional
-                                </Tag>
-                            )}
-                        </List.Item>
-                    )}
+                    dataSource={cocktail.ingredients}
+                    renderItem={(item, index) => {
+                        const percent = ((item.amount / totalAmount) * 100).toFixed(0);
+
+                        return (
+                            <List.Item className="flex items-center justify-between">
+                                <div className="flex items-center gap-3 w-full">
+                                    {/* Number Circle */}
+                                    <div
+                                        style={{
+                                            width: 24,
+                                            height: 24,
+                                            borderRadius: '50%',
+                                            backgroundColor: token.colorPrimary,
+                                            color: '#fff',
+                                            display: 'flex',
+                                            alignItems: 'center',
+                                            justifyContent: 'center',
+                                            fontWeight: 600,
+                                            fontSize: 14,
+                                        }}
+                                    >
+                                        {index + 1}
+                                    </div>
+
+                                    {/* Ingredient text */}
+                                    <div className="flex-1 relative">
+                                        <Text>
+                                            {item.amount} {item.units} {item.ingredient.name}
+                                        </Text>
+
+                                        {/* Background proportion */}
+                                        <div
+                                            className="absolute top-0 right-0 h-full rounded"
+                                            style={{
+                                                width: `${percent}%`,
+                                                backgroundColor: token.colorPrimary + '33', // 20% opacity
+                                                zIndex: 1,
+                                            }}
+                                        />
+                                    </div>
+
+                                    {/* Optional tag */}
+                                    {item.optional && <Tag color="orange">optional</Tag>}
+
+                                    {/* Percentage */}
+                                    <Text strong>{percent}%</Text>
+                                </div>
+                            </List.Item>
+                        );
+                    }}
                 />
+                {/*<List*/}
+                {/*    bordered*/}
+                {/*    dataSource={cocktail.ingredients}*/}
+                {/*    renderItem={(item, index) => (*/}
+                {/*        <List.Item className="flex items-center justify-between">*/}
+                {/*            <div className="flex items-center gap-3">*/}
+                {/*                /!* Number Circle using Antd primary color *!/*/}
+                {/*                <div*/}
+                {/*                    style={{*/}
+                {/*                        width: 24,*/}
+                {/*                        height: 24,*/}
+                {/*                        borderRadius: '50%',*/}
+                {/*                        backgroundColor: token.colorPrimary,*/}
+                {/*                        color: '#fff',*/}
+                {/*                        display: 'flex',*/}
+                {/*                        alignItems: 'center',*/}
+                {/*                        justifyContent: 'center',*/}
+                {/*                        fontWeight: 600,*/}
+                {/*                        fontSize: 14,*/}
+                {/*                    }}*/}
+                {/*                >*/}
+                {/*                    {index + 1}*/}
+                {/*                </div>*/}
+
+                {/*                /!* Ingredient text *!/*/}
+                {/*                <Text>*/}
+                {/*                    {item.amount} {item.units} {item.ingredient.name}*/}
+                {/*                </Text>*/}
+
+                {/*                /!* Optional tag *!/*/}
+                {/*                {item.optional && <Tag color="orange">optional</Tag>}*/}
+                {/*            </div>*/}
+                {/*        </List.Item>*/}
+                {/*    )}*/}
+                {/*/>*/}
 
                 <Divider />
 
                 {/* Instructions */}
                 <Title level={4}>Instructions</Title>
 
-                <List
-                    bordered
-                    dataSource={cocktail.instructions.split("\n")}
-                    renderItem={(step) => <List.Item>{step}</List.Item>}
+                {/*<List*/}
+                {/*    bordered*/}
+                {/*    dataSource={cocktail.instructions.split("\n")}*/}
+                {/*    renderItem={(step) => <List.Item>{step}</List.Item>}*/}
+                {/*/>*/}
+                <Steps
+                    current={current}
+                    onChange={(step) => setCurrent(step)}
+                    orientation="vertical"
+                    items={cocktail.instructions.split("\n").map((instruction: string, index: number) => ({
+                        title: 'Step ' + (index + 1),
+                        content: instruction
+                    }))}
                 />
             </Card>
         </main>
