@@ -27,7 +27,6 @@ export default function App() {
             try {
                 const res = await fetch(`/api/cocktails?${searchParams.toString()}`);
                 const data = await res.json();
-                console.log('!', res)
                 if (!res.ok) {
                     showError(data);
                     return;

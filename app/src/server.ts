@@ -46,7 +46,8 @@ export async function request(
                 cache: 'no-store',
                 body: options.body ?? {},
                 method: options.method ?? undefined
-            })
+            }
+            )
         const response = await fetch(
 
             `${baseUrl}${url}`,
@@ -67,8 +68,6 @@ export async function request(
         }
 
         const data = await response.json()
-        console.log(data, response)
-
         if (!response.ok) {
             if (data.errors) {
                 // data.errors is like: { email: ["..."], password: ["..."] }
@@ -91,7 +90,7 @@ export async function request(
 // COOKIES
 // ===============================
 
-type Key = 'userToken' | 'root'
+type Key = 'userToken' | 'root' | 'userData'
 
 export async function setCookie(key: Key, data: any) {
     const cookieStore = await cookies();

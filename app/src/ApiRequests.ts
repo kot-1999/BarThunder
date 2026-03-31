@@ -2,6 +2,129 @@ import {getCookie, IError, request, setCookie} from "@/app/src/server";
 import {Cocktail, Meta} from "@/app/src/types";
 
 class ApiRequests {
+
+    // ===============================
+    // COLLECTION
+    // ===============================
+    async addIngredientsToBarShelfBatch(ingredientIds: number[]) {
+        let root = await getCookie('root');
+        if (!root) {
+            root = await this.getOrCreateBar()
+        }
+
+        return request(
+            `/api/bars/${root.barID}/ingredients/batch-store`,
+            {
+                method: 'POST',
+                headers: {
+                    Authorization: `Bearer ${root.rootToken}`,
+                    Accept: 'application/json',
+                },
+                body: JSON.stringify({
+                    ingredients: ingredientIds
+                }),
+            },
+            true
+        );
+    }
+
+    async createCollection(userID: string, userToken: string) {
+        let root = await getCookie('root');
+
+        if (!root) {
+            root = await this.getOrCreateBar()
+        }
+        return request(`/api/collections`, {
+            method: 'POST',
+            headers: {
+                Authorization: `Bearer ${userToken}`,
+                'Bar-Assistant-Bar-Id': root.barID,
+            },
+            body: JSON.stringify({
+                name: 'collection-' + userID,
+                description: '',
+                is_bar_shared: true,
+                cocktails: [],
+            }),
+        });
+    }
+
+    async updateCollection(
+        cocktailIDs: string[],
+    ) {
+        let [userToken, root, userData] = await Promise.all([
+            getCookie('userToken'),
+            getCookie('root'),
+            getCookie('userData'),
+        ]);
+
+        if (!userData || !userToken) {
+            throw new IError(401, ['Not Authorized']);
+        }
+
+        if (!root) {
+            root = await this.getOrCreateBar()
+        }
+
+        return request(`/api/collections/${userData.collectionID}/cocktails`, {
+            method: 'PUT',
+            headers: {
+                Authorization: `Bearer ${userToken}`,
+                'Bar-Assistant-Bar-Id': String(root.barID),
+            },
+            body: JSON.stringify({
+                cocktails: cocktailIDs,
+            }),
+        });
+    }
+
+    async getCollection() {
+        const userToken = await getCookie('userToken');
+        const userData = await getCookie('userData');
+        let root = await getCookie('root');
+
+        if (!root) {
+            root = await this.getOrCreateBar()
+        }
+        if (!userToken){
+            throw new IError(401, ['Not Authorized']);
+        }
+
+        return request(`/api/collections/${userData.collectionID}`, {
+            method: 'GET',
+            headers: {
+                Authorization: `Bearer ${userToken}`,
+                'Bar-Assistant-Bar-Id': String(root.barID),
+            },
+        });
+    }
+
+    async getCollections(name?: string, token?: string) {
+        const userToken = token ?? await getCookie('userToken');
+        let root = await getCookie('root');
+        if (!root) {
+            root = await this.getOrCreateBar()
+        }
+
+        let url = `/api/collections?per_page=100`;
+
+        if (name) {
+            url += `&filter[name]=${name}`;
+        }
+
+        return request(
+            url,
+            {
+                method: 'GET',
+                headers: {
+                    Accept: 'application/json',
+                    Authorization: `Bearer ${userToken ?? root.rootToken}`,
+                    'Bar-Assistant-Bar-Id': String(root.barID),
+                }
+            }
+        );
+    }
+
     // ===============================
     // COCKTAILS
     // ===============================
@@ -18,12 +141,12 @@ class ApiRequests {
     ): Promise<{ data: Cocktail[], meta: Meta }> {
         const userToken = await getCookie('userToken')
         let root = await getCookie('root');
-
+        console.log(root)
         if (!root) {
             root = await this.getOrCreateBar()
         }
 
-        let reqUrl = `/api/cocktails?per_page=24&page=${options.page.toString()}&include=images,glass,method,tags`
+        let reqUrl = `/api/cocktails?user_shelves=true&per_page=24&page=${options.page.toString()}&include=images,glass,method,tags`
         if (options.name) {
             reqUrl += `&filter[name]=${options.name}`
         }
@@ -72,6 +195,7 @@ class ApiRequests {
             root = await this.getOrCreateBar()
         }
 
+        // const res = await this.addIngredientsToBarShelfBatch(data.ingredients.map((ingredient: any) => ingredient.ingredient_id))
         return request('/api/cocktails', {
             method: 'POST',
             headers: {
@@ -81,9 +205,14 @@ class ApiRequests {
             },
             body: JSON.stringify({
                 ...data,
+                in_bar_shelf: true,
+                tags: [],
+                utensils: [],
                 ingredients: data.ingredients.map((item: any, index: number) => ({
                     ...item,
-                    sort: index
+                    sort: index,
+                    substitutes: [],
+                    is_specified: false
                 }))
             }),
         });
@@ -99,22 +228,35 @@ class ApiRequests {
     },
         isRoot = false) {
 
-        // if (!isRoot) {
-        //     const userToken = await getCookie('userToken')
-        //     if (userToken) {
-        //         throw new Error('Already logged in')
-        //     }
-        // }
-
         const result = await request('/api/auth/login', {
             method: 'POST',
             body: JSON.stringify(data),
         }, isRoot);
+
         if (!isRoot) {
             await setCookie('userToken', result.data.token)
             const { data } = await this.getProfile()
-            await this.joinBar(result.data.token);
-            await this.updateUserRole(data.name, data.email, data.id)
+
+            await Promise.all([
+                this.joinBar(result.data.token),
+                this.updateUserRole(data.name, data.email, data.id),
+            ])
+            const collections = await this.getCollections('collection-' + data.id, result.data.token)
+            console.log(collections)
+            let collection
+            if (!collections.data.length) {
+                collection = await this.createCollection(data.id, result.data.token)
+            } else {
+                collection = collections.data[0]
+            }
+            await setCookie('userData', {
+                id: data.id,
+                email: data.email,
+                name: data.name,
+                collectionID: collection.id
+            })
+
+
         }
 
         return result;
@@ -194,8 +336,11 @@ class ApiRequests {
 
     async getIngredients(name?: string) {
         const userToken = await getCookie('userToken')
-        const root = await getCookie('root');
+        let root = await getCookie('root');
 
+        if (!root) {
+            root = await this.getOrCreateBar()
+        }
         let url = `/api/ingredients?per_page=100`;
         if (name) {
             url += `&filter[name]=${name}`
@@ -214,8 +359,11 @@ class ApiRequests {
 
     async getGlasses(name?: string) {
         const userToken = await getCookie('userToken')
-        const root = await getCookie('root');
+        let root = await getCookie('root');
 
+        if (!root) {
+            root = await this.getOrCreateBar()
+        }
         let url = `/api/glasses?per_page=100`;
         if (name) {
             url += `&filter[name]=${name}`
@@ -234,8 +382,11 @@ class ApiRequests {
 
     async getMethods(name?: string) {
         const userToken = await getCookie('userToken')
-        const root = await getCookie('root');
+        let root = await getCookie('root');
 
+        if (!root) {
+            root = await this.getOrCreateBar()
+        }
         let url = `/api/cocktail-methods?per_page=100`;
         if (name) {
             url += `&filter[name]=${name}`
@@ -267,8 +418,11 @@ class ApiRequests {
     }
 
     async updateUserRole(name: string, email: string, userId: number) {
-        const root = await getCookie('root');
+        let root = await getCookie('root');
 
+        if (!root) {
+            root = await this.getOrCreateBar()
+        }
         return request(`/api/users/${userId}`, {
             method: 'PUT',
             headers: {

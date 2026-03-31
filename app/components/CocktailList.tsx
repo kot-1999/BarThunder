@@ -8,7 +8,6 @@ import {decodeText} from "@/app/src/helpers";
 const { Title, Text, Paragraph } = Typography;
 
 export default function CocktailList({ cocktails }: { cocktails: Cocktail[] }) {
-    console.log(cocktails.forEach((drink) => console.log(drink.description)));
 
     return (
         <main className="p-6">

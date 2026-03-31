@@ -1,7 +1,7 @@
 'use client'
 
 import { useState } from "react";
-import {Form, Input, Button, Select, Space, Upload, Checkbox, Row, Col} from "antd";
+import {Form, Input, Button, Select, Space, Upload, Checkbox, Row, Col, message} from "antd";
 import { PlusOutlined, MinusCircleOutlined } from "@ant-design/icons";
 import type { UploadFile } from "antd/es/upload/interface";
 import { showError } from "@/app/src/helpers";
@@ -35,7 +35,6 @@ export default function CocktailUploadForm() {
                 showError(result);
                 return;
             }
-            console.log(result);
             setGlassOptions(
                 result.data.map((item: any) => ({
                     label: item.name,
@@ -147,7 +146,6 @@ export default function CocktailUploadForm() {
             const instructionsStr = values.instructions
                 .map((step: string, i: number) => `${i + 1}. ${step}`)
                 .join('\n');
-            console.log(values)
             // Prepare ingredients array
             const ingredientsArr = values.ingredients.map((ing: any) => ({
                 ingredient_id: ing.ingredient.value,
@@ -157,19 +155,17 @@ export default function CocktailUploadForm() {
                 optional: ing.optional
             }));
 
-            console.log('???????????????', ingredientsArr);
 
             const payload = {
                 name: values.name,
                 description: values.description,
                 garnish: values.garnish,
                 glass_id: values.glass.value,
-                method_id: values.method.value,
+                cocktail_method_id: values.method.value,
                 instructions: instructionsStr,
                 ingredients: ingredientsArr,
                 images: uploadedImage?.id ? [uploadedImage?.id] : undefined
             };
-            console.log('!!!!!!!!!!!!', payload);
 
             const res = await fetch(`/api/cocktails`, {
                 method: 'POST',
@@ -177,7 +173,7 @@ export default function CocktailUploadForm() {
             })
 
             const result = await res.json();
-
+            message.success('Cocktail was created successfully.');
             if (!res.ok) {
                 showError(result);
                 return;
