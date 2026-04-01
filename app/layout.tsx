@@ -2,11 +2,14 @@
 
 import "./globals.css";
 
-import {ConfigProvider, Layout, Menu, Space} from "antd";
+import {ConfigProvider, FloatButton, Layout, Menu, Space, Spin} from "antd";
 import Link from "next/link";
-import { usePathname } from "next/navigation";
+import {usePathname, useSearchParams} from "next/navigation";
 import {Footer} from "antd/es/layout/layout";
 import Text from "antd/es/typography/Text";
+import {UpOutlined} from "@ant-design/icons";
+import ChuckNorrisJoke from "@/app/components/ChuckNorris";
+import {useState} from "react";
 
 const { Header, Content } = Layout;
 
@@ -14,7 +17,9 @@ export default function RootLayout({children}: {
     children: React.ReactNode;
 }) {
     const pathname = usePathname();
+    const searchParams = useSearchParams();
     const year = new Date().getFullYear();
+    const [loading, setLoading] = useState(false);
     return (
         <html lang="en">
         <body suppressHydrationWarning>
@@ -35,17 +40,28 @@ export default function RootLayout({children}: {
                         mode="horizontal"
                         selectedKeys={[pathname]}
                         items={[
-                            { key: "/", label: <Link href="/">Home</Link> },
-                            { key: "/content", label: <Link href="/content">Content</Link> },
+                            { key: "/", label: <Link href="/">/:BarThunder</Link> },
+                            { key: "/myShelf", label: <Link href="/myShelf">My Shelf</Link> },
                             { key: "/about", label: <Link href="/about">About</Link> },
                             { key: "/drinks/new", label: <Link href="/cocktail/new">Add Cocktail</Link> },
                             { key: "/login", label: <Link href="/login">Login</Link> },
                         ]}
                     />
                 </Header>
-
                 <Content style={{ padding: 24 }}>
-                    {children}
+                    <ChuckNorrisJoke key={searchParams.toString()}/>
+                    <FloatButton.BackTop
+                        icon={<UpOutlined />}
+                        style={{
+                            right: 50,
+                            bottom: 50,
+                            width: 64,
+                            height: 64,
+                            boxShadow: '-moz-initial',
+                            borderWidth: 5,
+                        }}
+                    />
+                        {children}
                 </Content>
 
                 <Footer style={{ textAlign: "center", marginTop: 40 }}>
