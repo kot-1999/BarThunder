@@ -1,6 +1,7 @@
 import { NextRequest } from 'next/server';
 import {api} from "@/app/src/ApiRequests";
-import {handleServerError} from "@/app/src/server"; // adjust path
+import {handleServerError} from "@/app/src/server";
+import boolean from "@rc-component/async-validator/es/validator/boolean"; // adjust path
 
 export async function GET(req: NextRequest) {
     try {
@@ -9,11 +10,12 @@ export async function GET(req: NextRequest) {
         const page = searchParams.get('page') ?? '1';
         const name = searchParams.get('name') ?? undefined;
         const ingredientIDs = searchParams.get('ingredient') ?? undefined;
-
+        const ownCollection = searchParams.get('ownCollection') ?? undefined;
         const data = await api.listCocktails({
             page,
             name,
             ingredientIDs,
+            ownCollection: ownCollection,
         });
 
         return Response.json(data);
@@ -26,7 +28,13 @@ export async function GET(req: NextRequest) {
 export async function POST(req: NextRequest) {
     try {
         const data =  await req.json()
-        await api.createCocktail(data)
+        const cocktail = await api.createCocktail(data)
+        const collection = await api.getCollection()
+        console.log(collection)
+        const update = await api.updateCollection([cocktail.data.id, ...collection.data.cocktails.map((item: { id: string }) => item.id)])
+        console.log(update)
+        // console.log(collection, update)
+
         return Response.json('All ok')
     } catch (err) {
         return handleServerError(err)

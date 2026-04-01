@@ -135,13 +135,15 @@ class ApiRequests {
             page: number | string
             name?: string,
             ingredientIDs?: string
+            ownCollection?: string
         } = {
             page: 1
         }
     ): Promise<{ data: Cocktail[], meta: Meta }> {
         const userToken = await getCookie('userToken')
+        const userData = await getCookie('userData')
         let root = await getCookie('root');
-        console.log(root)
+
         if (!root) {
             root = await this.getOrCreateBar()
         }
@@ -153,6 +155,10 @@ class ApiRequests {
 
         if (options.ingredientIDs) {
             reqUrl += `&filter[specific_ingredients]=${options.ingredientIDs}`
+        }
+        console.log(options)
+        if (options.ownCollection) {
+            reqUrl += `&filter[collection_id]=${userData.collectionID}`
         }
         return request(
             reqUrl,

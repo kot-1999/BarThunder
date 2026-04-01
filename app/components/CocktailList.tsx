@@ -1,6 +1,6 @@
 'use client'
 
-import {Card, Row, Col, Tag, List, Typography, Divider, Button} from "antd";
+import {Card, Row, Col, Tag, List, Typography, Divider, Button, Masonry} from "antd";
 import Link from "next/link";
 import {Cocktail} from "@/app/src/types";
 import {decodeText} from "@/app/src/helpers";
@@ -12,7 +12,6 @@ export default function CocktailList({ cocktails }: { cocktails: Cocktail[] }) {
     return (
         <main className="p-6">
             <Title level={2}>Cocktails 🍸</Title>
-
             <Row gutter={[16, 16]}>
                 {cocktails.map((drink) => (
                     <Col xs={24} sm={12} lg={8} key={drink.id}>
