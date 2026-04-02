@@ -27,7 +27,6 @@ export async function GET(req: NextRequest) {
 
         return Response.json(data);
     } catch (err) {
-        console.error(err);
         return handleServerError(err)
     }
 }
@@ -37,10 +36,7 @@ export async function POST(req: NextRequest) {
         const data =  await req.json()
         const cocktail = await api.createCocktail(data)
         const collection = await api.getCollection()
-        console.log(collection)
-        const update = await api.updateCollection([cocktail.data.id, ...collection.data.cocktails.map((item: { id: string }) => item.id)])
-        console.log(update)
-        // console.log(collection, update)
+        await api.updateCollection([cocktail.data.id, ...collection.data.cocktails.map((item: { id: string }) => item.id)])
 
         return Response.json('All ok')
     } catch (err) {

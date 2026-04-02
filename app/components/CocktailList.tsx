@@ -1,14 +1,30 @@
 'use client'
 
-import {Card, Row, Col, Tag, List, Typography, Divider, Button, Masonry, Flex, Rate} from "antd";
+import {Card, Row, Col, Tag, List, Typography, Divider, Button, Masonry, Flex, Rate, message} from "antd";
 import Link from "next/link";
 import {Cocktail} from "@/app/src/types";
-import {decodeText} from "@/app/src/helpers";
+import {decodeText, showError} from "@/app/src/helpers";
+import Rating from "@/app/components/Rating";
 
 const { Title, Text, Paragraph } = Typography;
 
 export default function CocktailList({ cocktails }: { cocktails: Cocktail[] }) {
 
+    const onChange = async (event: number, id: number) => {
+        try {
+            console.log(`/api/cocktails/${id}`);
+            await fetch(`/api/cocktails/${id}`, {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify({ rating: event }),
+            });
+            message.success('Rated successfully')
+        } catch (error) {
+            showError(error)
+        }
+    }
     return (
         <main className="p-6">
             <Title level={2}>Cocktails 🍸</Title>
@@ -27,18 +43,11 @@ export default function CocktailList({ cocktails }: { cocktails: Cocktail[] }) {
                             }
                         >
                             <Flex align="center" gap={8}>
-                                <Rate
-                                    size='large'
-                                    disabled={false}
-                                    allowClear={true}
-                                    value={drink.rating.average}
+                                <Rating
+                                    id={drink.id}
+                                    initialRating={drink.rating}
                                 />
                             </Flex>
-                            <Text
-                                type="secondary"
-                            >
-                                {drink.rating.average.toFixed(1)} / Total {drink.rating.total_votes}
-                            </Text>
                             <Title level={4}>{drink.name}</Title>
 
                             <Paragraph ellipsis={{

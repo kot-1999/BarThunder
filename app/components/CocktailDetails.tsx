@@ -15,6 +15,7 @@ import Paragraph from "antd/es/typography/Paragraph";
 import Title from "antd/es/typography/Title";
 import Text from "antd/es/typography/Text";
 import {useState} from "react";
+import Rating from "@/app/components/Rating";
 
 export default function CocktailDetails({ cocktail }: { cocktail: Cocktail }) {
     const router = useRouter();
@@ -47,6 +48,8 @@ export default function CocktailDetails({ cocktail }: { cocktail: Cocktail }) {
 
                     {/* Main Info */}
                     <Col xs={24} md={14}>
+                        <Rating id={cocktail.id} initialRating={cocktail.rating}/>
+
                         <Title level={2}>{cocktail.name}</Title>
 
                         <Paragraph>{cocktail.description}</Paragraph>

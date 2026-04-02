@@ -18,7 +18,7 @@ export default function App() {
         async function load() {
             try {
                 const query = new URLSearchParams(searchParams.toString());
-                query.set('sort', 'random');
+                // query.set('sort', 'random');
 
                 const res = await fetch(`/api/cocktails?${query.toString()}`);
                 const data = await res.json();

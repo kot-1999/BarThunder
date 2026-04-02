@@ -190,6 +190,7 @@ class ApiRequests {
     }
 
     async getCocktail(id: number | string): Promise<{ data: Cocktail }> {
+        const userToken = await getCookie('userToken');
         let root = await getCookie('root');
         if (!root) {
             root = await this.getOrCreateBar()
@@ -199,9 +200,46 @@ class ApiRequests {
             {
                 method: 'GET',
                 headers: {
-                    Authorization: `Bearer ${root.rootToken}`
+                    Authorization: `Bearer ${userToken ?? root.rootToken}`
                 },
             }
+        );
+    }
+
+    async deleteCocktail(id: number | string): Promise<{ data: Cocktail }> {
+        const userToken = await getCookie('userToken');
+        if (!userToken) {
+            throw new IError(401, ['Not Authorized']);
+        }
+
+
+        return request(
+            `/api/cocktails/${String(id)}`,
+            {
+                method: 'DELETE',
+                headers: {
+                    Authorization: `Bearer ${userToken}`
+                },
+            }
+        );
+    }
+
+    async rateCocktail(id: number | string, rating: string): Promise<{ data: Cocktail }> {
+        const userToken = await getCookie('userToken');
+        if (!userToken) {
+            throw new IError(401, ['Not Authorized']);
+        }
+
+
+        return request(
+            `/api/cocktails/${String(id)}/ratings`,
+            {
+                method: 'POST',
+                headers: {
+                    Authorization: `Bearer ${userToken}`
+                },
+                body: JSON.stringify({ rating })
+            }, true
         );
     }
 
