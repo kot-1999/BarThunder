@@ -18,7 +18,7 @@ export default function App() {
         async function load() {
             try {
                 const query = new URLSearchParams(searchParams.toString());
-                // query.set('sort', 'random');
+                query.set('perPage', '24');
 
                 const res = await fetch(`/api/cocktails?${query.toString()}`);
                 const data = await res.json();
@@ -42,7 +42,7 @@ export default function App() {
         <div>
             <SearchBar></SearchBar>
 
-            <CocktailList cocktails={cocktails?.data ?? []} />
+            <CocktailList cocktails={cocktails?.data ?? []} showAddNew={false} />
 
             <SimplePagination
                 pagination={{

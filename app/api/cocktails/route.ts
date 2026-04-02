@@ -14,7 +14,7 @@ export async function GET(req: NextRequest) {
         const sort = searchParams.get('sort') ?? undefined;
         const maxAbv = searchParams.get('maxAbv') ?? undefined;
         const minAbv = searchParams.get('minAbv') ?? undefined;
-
+        const perPage = searchParams.get('perPage') ?? undefined;
         const data = await api.listCocktails({
             page,
             name,
@@ -23,6 +23,7 @@ export async function GET(req: NextRequest) {
             sort,
             maxAbv,
             minAbv,
+            perPage
         });
 
         return Response.json(data);

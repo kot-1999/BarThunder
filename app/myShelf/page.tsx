@@ -11,7 +11,6 @@ import SearchBar from "@/app/components/SearchBar";
 
 export default function MyShelf() {
     const searchParams = useSearchParams();
-    const [open, setOpen] = useState(false);
     const [cocktails, setCocktails] = useState<any>(null);
 
     useEffect(() => {
@@ -20,6 +19,7 @@ export default function MyShelf() {
                 const query = new URLSearchParams(searchParams.toString());
                 query.set('ownCollection', 'true');
                 query.set('sort', 'abv');
+                query.set('perPage', '23');
                 const res = await fetch(`/api/cocktails?${query.toString()}`);
                 const data = await res.json();
                 if (!res.ok) {
@@ -38,30 +38,16 @@ export default function MyShelf() {
     return (
         <div className="p-4">
             <h1 className="text-xl font-semibold mb-4">My Shelf</h1>
-            <Button type="primary" onClick={() => setOpen(true)}>
-                Add New
-            </Button>
-
-            <Modal
-                title="Create Cocktail"
-                open={open}
-                onCancel={() => setOpen(false)}
-                footer={null}
-                destroyOnClose
-                width={700}
-            >
-                <CocktailUploadForm onSuccess={() => setOpen(false)} />
-            </Modal>
 
             <SearchBar/>
 
-            <CocktailList cocktails={cocktails?.data ?? []}></CocktailList>
+            <CocktailList cocktails={cocktails?.data ?? []} showAddNew={true}></CocktailList>
 
             <SimplePagination
                 pagination={{
                     current: cocktails?.meta?.current_page ?? 1,
                     total: cocktails?.meta.total ?? 0,
-                    perPage: cocktails?.meta.per_page ?? 24
+                    perPage: cocktails?.meta.per_page ?? 23
                 }}
             />
         </div>

@@ -139,6 +139,7 @@ class ApiRequests {
             sort?: string,
             maxAbv?: string,
             minAbv?: string,
+            perPage?: string
         } = {
             page: 1
         }
@@ -159,6 +160,10 @@ class ApiRequests {
 
         if (options.ingredientIDs) {
             reqUrl += `&filter[specific_ingredients]=${options.ingredientIDs}`
+        }
+
+        if (options.perPage) {
+            reqUrl += `&per_page=${options.perPage}`
         }
 
         if (options.sort) {
