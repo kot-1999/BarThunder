@@ -170,11 +170,11 @@ class ApiRequests {
         }
 
         if (options.maxAbv) {
-            reqUrl += `&filter[max_abv]=${options.maxAbv}`
+            reqUrl += `&filter[abv_max]=${options.maxAbv}`
         }
 
         if (options.minAbv) {
-            reqUrl += `&filter[min_abv]=${options.minAbv}`
+            reqUrl += `&filter[abv_min]=${options.minAbv}`
         }
 
         return request(
