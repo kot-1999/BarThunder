@@ -14,4 +14,14 @@ export const showError = (data: any) => {
     }
 }
 
+export const saveScroll = () => {
+    sessionStorage.setItem('scrollY', String(window.scrollY));
+};
+
+export const setScroll  = () => {
+    const scrollY = sessionStorage.getItem('scrollY');
+    if (scrollY) {
+        window.scrollTo(0, Number(scrollY));
+    }
+}
 export const decodeText = (text: string) => decode(text);

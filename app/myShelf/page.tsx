@@ -19,8 +19,9 @@ export default function MyShelf() {
             try {
                 const query = new URLSearchParams(searchParams.toString());
                 query.set('ownCollection', 'true');
-                query.set('sort', 'created_at');
-                const res = await fetch(`/api/cocktails?${query.toString()}`);                const data = await res.json();
+                query.set('sort', 'abv');
+                const res = await fetch(`/api/cocktails?${query.toString()}`);
+                const data = await res.json();
                 if (!res.ok) {
                     showError(data);
                     return;

@@ -60,7 +60,7 @@ export default function CocktailDetails({ cocktail }: { cocktail: Cocktail }) {
 
                         <Divider />
 
-                        <Text>Glass:</Text> {cocktail.glass?.name} <br />
+                        <Text strong>Glass:</Text> {cocktail.glass?.name} <br />
                         <Text strong>Method:</Text> {cocktail.method?.name} <br />
                         <Text strong>ABV:</Text> {cocktail.abv}% <br />
 
@@ -140,6 +140,8 @@ export default function CocktailDetails({ cocktail }: { cocktail: Cocktail }) {
                         );
                     }}
                 />
+
+                {/*OLD LIST OF INGREDIENTS*/}
                 {/*<List*/}
                 {/*    bordered*/}
                 {/*    dataSource={cocktail.ingredients}*/}
@@ -181,18 +183,20 @@ export default function CocktailDetails({ cocktail }: { cocktail: Cocktail }) {
                 {/* Instructions */}
                 <Title level={4}>Instructions</Title>
 
+                {/*OLD LIST OF STEPS*/}
                 {/*<List*/}
                 {/*    bordered*/}
                 {/*    dataSource={cocktail.instructions.split("\n")}*/}
                 {/*    renderItem={(step) => <List.Item>{step}</List.Item>}*/}
                 {/*/>*/}
+
                 <Steps
                     current={current}
                     onChange={(step) => setCurrent(step)}
                     orientation="vertical"
                     items={cocktail.instructions.split("\n").map((instruction: string, index: number) => ({
                         title: 'Step ' + (index + 1),
-                        content: instruction
+                        content: instruction.slice(3)
                     }))}
                 />
             </Card>

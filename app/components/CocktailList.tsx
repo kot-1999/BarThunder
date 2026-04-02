@@ -1,6 +1,6 @@
 'use client'
 
-import {Card, Row, Col, Tag, List, Typography, Divider, Button, Masonry} from "antd";
+import {Card, Row, Col, Tag, List, Typography, Divider, Button, Masonry, Flex, Rate} from "antd";
 import Link from "next/link";
 import {Cocktail} from "@/app/src/types";
 import {decodeText} from "@/app/src/helpers";
@@ -26,6 +26,19 @@ export default function CocktailList({ cocktails }: { cocktails: Cocktail[] }) {
                                 )
                             }
                         >
+                            <Flex align="center" gap={8}>
+                                <Rate
+                                    size='large'
+                                    disabled={false}
+                                    allowClear={true}
+                                    value={drink.rating.average}
+                                />
+                            </Flex>
+                            <Text
+                                type="secondary"
+                            >
+                                {drink.rating.average.toFixed(1)} / Total {drink.rating.total_votes}
+                            </Text>
                             <Title level={4}>{drink.name}</Title>
 
                             <Paragraph ellipsis={{

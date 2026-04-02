@@ -9,7 +9,7 @@ import {Footer} from "antd/es/layout/layout";
 import Text from "antd/es/typography/Text";
 import {UpOutlined} from "@ant-design/icons";
 import ChuckNorrisJoke from "@/app/components/ChuckNorris";
-import {useState} from "react";
+import {useEffect, useState} from "react";
 
 const { Header, Content } = Layout;
 
@@ -20,6 +20,23 @@ export default function RootLayout({children}: {
     const searchParams = useSearchParams();
     const year = new Date().getFullYear();
     const [loading, setLoading] = useState(false);
+
+    useEffect(() => {
+        const handleBeforeUnload = () => {
+            sessionStorage.setItem('scrollY', String(window.scrollY));
+        };
+
+        window.addEventListener('beforeunload', handleBeforeUnload);
+
+        const scrollY = sessionStorage.getItem('scrollY');
+        if (scrollY) {
+            window.scrollTo(0, Number(scrollY));
+        }
+
+        return () => {
+            window.removeEventListener('beforeunload', handleBeforeUnload);
+        };
+    }, []);
     return (
         <html lang="en">
         <body suppressHydrationWarning>
@@ -30,6 +47,7 @@ export default function RootLayout({children}: {
                     borderRadius: 8,          // global border radius
                     fontSize: 16,             // base font size
                     colorTextBase: "#302f2f",    // base text color
+                    
                 },
             }}
         >

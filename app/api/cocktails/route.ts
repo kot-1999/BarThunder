@@ -11,11 +11,18 @@ export async function GET(req: NextRequest) {
         const name = searchParams.get('name') ?? undefined;
         const ingredientIDs = searchParams.get('ingredient') ?? undefined;
         const ownCollection = searchParams.get('ownCollection') ?? undefined;
+        const sort = searchParams.get('sort') ?? undefined;
+        const maxAbv = searchParams.get('maxAbv') ?? undefined;
+        const minAbv = searchParams.get('minAbv') ?? undefined;
+
         const data = await api.listCocktails({
             page,
             name,
             ingredientIDs,
             ownCollection: ownCollection,
+            sort,
+            maxAbv,
+            minAbv,
         });
 
         return Response.json(data);

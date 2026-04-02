@@ -136,6 +136,9 @@ class ApiRequests {
             name?: string,
             ingredientIDs?: string
             ownCollection?: string
+            sort?: string,
+            maxAbv?: string,
+            minAbv?: string,
         } = {
             page: 1
         }
@@ -148,7 +151,8 @@ class ApiRequests {
             root = await this.getOrCreateBar()
         }
 
-        let reqUrl = `/api/cocktails?user_shelves=true&per_page=24&page=${options.page.toString()}&include=images,glass,method,tags`
+        let reqUrl = `/api/cocktails?user_shelves=true&per_page=24&page=${options.page.toString()}&include=images,glass,method,tags,ratings`
+
         if (options.name) {
             reqUrl += `&filter[name]=${options.name}`
         }
@@ -156,10 +160,23 @@ class ApiRequests {
         if (options.ingredientIDs) {
             reqUrl += `&filter[specific_ingredients]=${options.ingredientIDs}`
         }
-        console.log(options)
+
+        if (options.sort) {
+            reqUrl += `&sort=${options.sort}`
+        }
+
         if (options.ownCollection) {
             reqUrl += `&filter[collection_id]=${userData.collectionID}`
         }
+
+        if (options.maxAbv) {
+            reqUrl += `&filter[max_abv]=${options.maxAbv}`
+        }
+
+        if (options.minAbv) {
+            reqUrl += `&filter[min_abv]=${options.minAbv}`
+        }
+
         return request(
             reqUrl,
             {
