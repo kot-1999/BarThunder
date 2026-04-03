@@ -1,7 +1,7 @@
 'use server';
 
 import { api } from "@/app/src/ApiRequests";
-import {handleServerError, IError} from "@/app/src/server";
+import {getCookie, handleServerError, IError} from "@/app/src/server";
 
 export async function POST(req: Request) {
     try {
@@ -16,6 +16,17 @@ export async function POST(req: Request) {
         }
 
         return new Response(JSON.stringify({ success: true, data: result }), { status: 200 })
+
+    } catch (err: IError | any) {
+        return handleServerError(err)
+    }
+}
+
+export async function GET() {
+    try {
+        const isAuthenticated = await getCookie('userToken')
+
+        return new Response(JSON.stringify({ isAuthenticated }), { status: 200 })
 
     } catch (err: IError | any) {
         return handleServerError(err)
