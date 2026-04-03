@@ -139,7 +139,9 @@ class ApiRequests {
             sort?: string,
             maxAbv?: string,
             minAbv?: string,
-            perPage?: string
+            perPage?: string,
+            minRating?: string,
+            maxRating?: string,
         } = {
             page: 1
         }
@@ -181,6 +183,15 @@ class ApiRequests {
         if (options.minAbv) {
             reqUrl += `&filter[abv_min]=${options.minAbv}`
         }
+
+        if (options.minRating && options.minRating !== '0') {
+            reqUrl += `&filter[average_rating_min]=${options.minRating}`
+        }
+
+        if (options.maxRating) {
+            reqUrl += `&filter[average_rating_max]=${options.maxRating}`
+        }
+
 
         return request(
             reqUrl,
@@ -308,7 +319,7 @@ class ApiRequests {
                 this.updateUserRole(data.name, data.email, data.id),
             ])
             const collections = await this.getCollections('collection-' + data.id, result.data.token)
-            console.log(collections)
+
             let collection
             if (!collections.data.length) {
                 collection = await this.createCollection(data.id, result.data.token)

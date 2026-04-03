@@ -7,23 +7,18 @@ export async function GET(req: NextRequest) {
     try {
         const { searchParams } = new URL(req.url);
 
-        const page = searchParams.get('page') ?? '1';
-        const name = searchParams.get('name') ?? undefined;
-        const ingredientIDs = searchParams.get('ingredient') ?? undefined;
-        const ownCollection = searchParams.get('ownCollection') ?? undefined;
-        const sort = searchParams.get('sort') ?? undefined;
-        const maxAbv = searchParams.get('maxAbv') ?? undefined;
-        const minAbv = searchParams.get('minAbv') ?? undefined;
-        const perPage = searchParams.get('perPage') ?? undefined;
         const data = await api.listCocktails({
-            page,
-            name,
-            ingredientIDs,
-            ownCollection: ownCollection,
-            sort,
-            maxAbv,
-            minAbv,
-            perPage
+            page: searchParams.get('page') ?? '1',
+            name: searchParams.get('name') ?? undefined,
+            ingredientIDs: searchParams.get('ingredient') ?? undefined,
+            ownCollection: searchParams.get('ownCollection') ?? undefined,
+            sort: searchParams.get('sort') ?? undefined,
+            maxAbv: searchParams.get('maxAbv') ?? undefined,
+            minAbv: searchParams.get('minAbv') ?? undefined,
+            perPage: searchParams.get('perPage') ?? undefined,
+            minRating: searchParams.get('minRating') ?? undefined,
+            maxRating: searchParams.get('maxRating') ?? undefined
+
         });
 
         return Response.json(data);
