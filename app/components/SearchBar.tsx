@@ -12,6 +12,7 @@ export default function SearchBar() {
     const router = useRouter();
     const searchParams = useSearchParams();
     const [form] = Form.useForm();
+    const [filterForm] = Form.useForm();
     const currentParams = Object.fromEntries(searchParams.entries());
 
     const handleIngredientSearch = async (value: string = "a") => {
@@ -30,13 +31,32 @@ export default function SearchBar() {
         }
     };
 
-    const onFinish = (values: any) => {
-        const params = new URLSearchParams(searchParams.toString());
-        if (values.name) params.set("name", values.name);
-        else params.delete("name");
+    const onFinish = (values2: any) => {
 
-        if (values.ingredient?.length) params.set("ingredient", values.ingredient.join(","));
-        else params.delete("ingredient");
+        const values = {
+            ...form.getFieldsValue(),
+            ...filterForm.getFieldsValue(),
+            ...values2, // last wins (important)
+        };
+
+        const params = new URLSearchParams(searchParams.toString());
+        if (values.name) {
+            params.set("name", values.name)
+        } else {
+            params.delete("name")
+        }
+
+        if (values.ingredient?.length) {
+            params.set("ingredient", values.ingredient.join(","))
+        } else {
+            params.delete("ingredient")
+        }
+
+        if (values.sort) {
+            params.set("sort", values.sort)
+        } else {
+            params.delete("sort")
+        }
 
         if (values.abv?.length === 2) {
             params.set("minAbv", String(values.abv[0]));
@@ -46,6 +66,14 @@ export default function SearchBar() {
             params.delete("maxAbv");
         }
 
+        if (values.rating?.length === 2) {
+            params.set("minRating", String(values.rating[0]));
+            params.set("maxRating", String(values.rating[1]));
+        } else {
+            params.delete("minRating");
+            params.delete("maxRating");
+        }
+
         params.delete("page");
         router.replace(`?${params.toString()}`);
     };
@@ -53,7 +81,7 @@ export default function SearchBar() {
     // Dropdown content
     const filterContent = (
         <div className="p-4 pr-8 w-64 bg-white shadow-lg rounded space-y-4">
-            <Form form={form} layout="vertical">
+            <Form form={filterForm} onFinish={onFinish} layout='vertical'>
                 <Form.Item
                     name="ingredient"
                     label={<Text>Cocktail Ingredients</Text>}
@@ -75,7 +103,7 @@ export default function SearchBar() {
                 <Form.Item
                     name="abv"
                     label={<Text>Alcohol by Volume (ABV)</Text>}
-                    initialValue={[Number(currentParams?.minAbv) || 0, Number(currentParams?.maxAbv) || 40]}
+                    initialValue={[Number(currentParams?.minAbv) || 0, Number(currentParams?.maxAbv) || 100]}
                 >
                     <Slider
                         range
@@ -86,6 +114,48 @@ export default function SearchBar() {
                         tooltip={{ formatter: (v) => `${v}%` }}
                         className="w-full"
                     />
+                </Form.Item>
+
+                <Form.Item
+                    name="sort"
+                    label={<Text>Sort by</Text>}
+                    initialValue={currentParams?.sort ?? undefined}
+                >
+                    <Select
+                        placeholder="Name"
+                        style={{ width: 180 }}
+                        allowClear
+                        options={[
+                            { label: 'Name', value: 'name' },
+                            { label: 'Created At', value: 'created_at' },
+                            { label: 'Rating (Lowest first)', value: 'average_rating' },
+                            { label: 'Random', value: 'random' },
+                            { label: 'ABV', value: 'abv' },
+                        ]}
+                    />
+                </Form.Item>
+
+                {/* Doesn't work properly with 0 rating*/}
+                {/*<Form.Item*/}
+                {/*    name="rating"*/}
+                {/*    label={<Text>Rating by stars</Text>}*/}
+                {/*    initialValue={[Number(currentParams?.minRating) || 0, Number(currentParams?.maxRating) || 5]}*/}
+                {/*>*/}
+                {/*    <Slider*/}
+                {/*        range*/}
+                {/*        min={0}*/}
+                {/*        max={5}*/}
+                {/*        step={0.5}*/}
+                {/*        marks={{ 0: "0", 1: "1", 2: "2", 3: "3", 4: "4", 5: "5"}}*/}
+                {/*        tooltip={{ formatter: (v) => `${v} Stars` }}*/}
+                {/*        className="w-full"*/}
+                {/*    />*/}
+                {/*</Form.Item>*/}
+
+                <Form.Item>
+                    <Button type="primary" htmlType="submit"  onClick={() => filterForm.submit()} >
+                        Apply
+                    </Button>
                 </Form.Item>
             </Form>
         </div>
@@ -111,7 +181,7 @@ export default function SearchBar() {
                 </Dropdown>
 
                 <Form.Item>
-                    <Button type="primary" htmlType="submit">
+                    <Button type="primary" htmlType="submit" >
                         Search
                     </Button>
                 </Form.Item>
