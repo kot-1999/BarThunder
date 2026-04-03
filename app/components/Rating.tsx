@@ -35,7 +35,6 @@ export default function Rating({ id, initialRating }: CocktailRatingProps) {
             setRating(cocktail.data.rating)
             message.success('Rated successfully');
         } catch (error) {
-            console.log(error);
             showError(error);
         }
     };
