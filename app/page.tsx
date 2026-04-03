@@ -42,7 +42,7 @@ export default function App() {
         <div>
             <SearchBar></SearchBar>
 
-            <CocktailList cocktails={cocktails?.data ?? []} showAddNew={false} />
+            <CocktailList cocktails={cocktails?.data ?? []} showAddNew={false} results={cocktails?.meta.total} />
 
             <SimplePagination
                 pagination={{

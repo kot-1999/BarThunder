@@ -30,6 +30,7 @@ export default function SimplePagination({pagination}: SimplePaginationProps) {
             current={pagination.current}
             defaultCurrent={1}
             align='center'
+            hideOnSinglePage
             showSizeChanger={false}
         />
     );

@@ -41,7 +41,7 @@ export default function MyShelf() {
 
             <SearchBar/>
 
-            <CocktailList cocktails={cocktails?.data ?? []} showAddNew={true}></CocktailList>
+            <CocktailList cocktails={cocktails?.data ?? []} showAddNew={true} results={cocktails?.meta.total}></CocktailList>
 
             <SimplePagination
                 pagination={{
