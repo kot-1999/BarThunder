@@ -1,36 +1,46 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
+## Content
 
-## Getting Started
+- [About BarThunder](#about-barthunder)
+- [How to start](#how-to-start)
+    - [Prerequisites](#prerequisites)
+    - [Run application](#run-application)
 
-First, run the development server:
+## About BarThunder
+
+## How to start
+
+### Prerequisites
+- Ensure that Docker engine alongside with Docker Desktop app are installed on your system;
+- `docker compose` must be available.
+
+### Run application
 
 ```bash
-npm run dev
-# or
-yarn dev
-# or
-pnpm dev
-# or
-bun dev
+## Install dependencies
+npm install --legacy-peer-deps
 ```
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+```bash
+## Create .env file
+cat <<EOF > .env
+MEILI_MASTER_KEY=masterKey-make-it-long-for-security
+MEILISEARCH_URL=http://localhost:8081
+API_URL=http://localhost:8082
 
-You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
+ROOT_EMAIL=bar-thunder-01@gmail.com
+ROOT_PASSWORD=test123
+NEXT_PUBLIC_ROOT_BAR_SLUG=bar-thunder-01
+NEXT_PUBLIC_ROOT_NAME=bar-thunder-01
+EOF
+```
 
-This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
+```bash
+## Run docker
+docker compose up
+```
 
-## Learn More
+```bash
+## Run frontend
+npm run dev
+```
 
-To learn more about Next.js, take a look at the following resources:
-
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
-
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
-
-## Deploy on Vercel
-
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
-
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
