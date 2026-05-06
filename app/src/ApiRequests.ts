@@ -148,6 +148,7 @@ class ApiRequests {
     ): Promise<{ data: Cocktail[], meta: Meta }> {
         const userToken = await getCookie('userToken')
         const userData = await getCookie('userData')
+
         let root = await getCookie('root');
 
         if (!root) {
@@ -271,7 +272,6 @@ class ApiRequests {
         if (!root) {
             root = await this.getOrCreateBar()
         }
-
         // const res = await this.addIngredientsToBarShelfBatch(data.ingredients.map((ingredient: any) => ingredient.ingredient_id))
         return request('/api/cocktails', {
             method: 'POST',
@@ -337,6 +337,25 @@ class ApiRequests {
         }
 
         return result;
+    }
+
+    async logout() {
+        const userToken = await getCookie('userToken');
+
+        // await setCookie('userData', null)
+        // await setCookie('userToken', null)
+
+        if (!userToken) {
+            throw new IError(401, ['Authentication is required'])
+        }
+        const res = await request('/api/auth/logout', {
+            method: 'POST',
+            headers: {
+                'Authorization': `Bearer ${userToken}`
+            },
+        });
+
+        return res
     }
 
     register(
