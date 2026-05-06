@@ -1,7 +1,6 @@
 import { NextRequest } from 'next/server';
 import {api} from "@/app/src/ApiRequests";
 import {handleServerError} from "@/app/src/server";
-import boolean from "@rc-component/async-validator/es/validator/boolean"; // adjust path
 
 export async function GET(req: NextRequest) {
     try {
