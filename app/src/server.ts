@@ -67,7 +67,7 @@ export async function request(
             return response
         }
 
-        const data = await response.json()
+        const data = response.ok ? await response.json() : {}
         if (!response.ok) {
             if (data.errors) {
                 // data.errors is like: { email: ["..."], password: ["..."] }
