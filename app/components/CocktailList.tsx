@@ -41,7 +41,7 @@ export default function CocktailList({ cocktails, showAddNew, results }: { cockt
                 open={open}
                 onCancel={() => setOpen(false)}
                 footer={null}
-                destroyOnClose
+                destroyOnHidden
                 width={700}
             >
                 <CocktailUploadForm/>
