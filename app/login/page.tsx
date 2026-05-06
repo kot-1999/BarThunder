@@ -2,8 +2,11 @@
 
 import {Form, Input, Button, Card, Tabs, message} from "antd";
 import {showError} from "@/app/src/helpers";
+import {useAuth} from "@/app/src/authContent";
 
 export default function AuthCard() {
+    const { checkAuth } = useAuth();
+
     const onLoginFinish = (values: unknown) => {
         onFinish(values, 'login');
     }
@@ -22,7 +25,7 @@ export default function AuthCard() {
             });
 
             const data = await res.json();
-
+            await checkAuth()
             if (res.ok) {
                 message.success(`${mode === 'login' ? 'Login' : 'Registration'} successful`);
             } else {
