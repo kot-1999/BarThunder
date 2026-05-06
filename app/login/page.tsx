@@ -136,7 +136,7 @@ export default function AuthCard() {
                 paddingTop: 80,
             }}
         >
-            <Card title="Login" style={{ width: 400 }}>
+            <Card title="Authorization" style={{ width: 400 }}>
                 <Tabs defaultActiveKey="login" items={items} centered />
             </Card>
         </div>

@@ -241,13 +241,14 @@ class ApiRequests {
         );
     }
 
-    async rateCocktail(id: number | string, rating: string): Promise<{ data: Cocktail }> {
+    async rateCocktail(id: number | string, rating: string): Promise<{ data: Cocktail } | null> {
         const userToken = await getCookie('userToken');
+
         if (!userToken) {
-            throw new IError(401, ['Not Authorized']);
+            throw new IError(401, ['Authorization is required']);
         }
 
-
+        console.log('????????????')
         return request(
             `/api/cocktails/${String(id)}/ratings`,
             {

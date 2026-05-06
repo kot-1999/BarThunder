@@ -3,6 +3,7 @@
 import { Rate, message, Typography } from 'antd';
 import { useState, useEffect } from 'react';
 import { showError } from '@/app/src/helpers';
+import {useRouter} from "next/navigation";
 
 const { Text } = Typography;
 
@@ -17,6 +18,7 @@ interface CocktailRatingProps {
 export default function Rating({ id, initialRating }: CocktailRatingProps) {
     const [rating, setRating] = useState(initialRating);
     const [mounted, setMounted] = useState(false);
+    const router = useRouter()
 
     // Only render after the client mounts
     useEffect(() => {
@@ -30,10 +32,14 @@ export default function Rating({ id, initialRating }: CocktailRatingProps) {
                 headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify({ rating: value }),
             });
-
-            const cocktail = await res.json();
-            setRating(cocktail.data.rating)
-            message.success('Rated successfully');
+            if (!res.ok) {
+                router.replace('/login')
+                message.error('Authorization is required');
+            } else {
+                const cocktail = await res.json();
+                setRating(cocktail.data.rating)
+                message.success('Rated successfully');
+            }
         } catch (error) {
             showError(error);
         }
